@@ -19,8 +19,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   
   return (
     <div className={cn(
-      "chat-message",
-      isUser ? "user-message" : "bot-message"
+      "chat-message mb-4 p-3 rounded-lg",
+      isUser ? "bg-medical-primary/10 ml-8" : "bg-gray-100 mr-8"
     )}>
       <div className="flex items-start gap-3">
         {!isUser && (
@@ -28,14 +28,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <Bot className="h-5 w-5 text-medical-primary" />
           </div>
         )}
-        <div>
+        <div className="flex-1">
           <div className="font-medium text-sm mb-1">
             {isUser ? 'You' : 'MediAssist'}
           </div>
           <div className="text-sm">{message.content}</div>
         </div>
         {isUser && (
-          <div className="flex-shrink-0 bg-medical-primary/20 rounded-full p-1 ml-auto">
+          <div className="flex-shrink-0 bg-medical-primary/20 rounded-full p-1">
             <User className="h-5 w-5 text-medical-primary" />
           </div>
         )}
