@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AppLayout from "./components/AppLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -24,16 +25,22 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* Auth route outside the main layout */}
           <Route path="/auth" element={<Auth />} />
-          <Route path="/symptom-checker" element={<SymptomChecker />} />
-          <Route path="/medications" element={<Medications />} />
-          <Route path="/appointments" element={<Appointments />} />
-          <Route path="/health-records" element={<HealthRecords />} />
-          <Route path="/vitals" element={<Vitals />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Main layout with sidebar */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/symptom-checker" element={<SymptomChecker />} />
+            <Route path="/medications" element={<Medications />} />
+            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/health-records" element={<HealthRecords />} />
+            <Route path="/vitals" element={<Vitals />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/help" element={<Help />} />
+          </Route>
+          
+          {/* Catch all route for 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
