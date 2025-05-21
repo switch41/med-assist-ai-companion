@@ -1,13 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ChatContainer from '../components/ChatContainer';
 import Sidebar from '../components/Sidebar';
 import MedicalDisclaimer from '../components/MedicalDisclaimer';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { LogIn } from 'lucide-react';
 
 const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Check if the disclaimer has been accepted before
@@ -15,6 +21,23 @@ const Index = () => {
     if (hasAcceptedDisclaimer === 'true') {
       setShowDisclaimer(false);
     }
+    
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsAuthenticated(!!data.session);
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
   
   const handleAcceptDisclaimer = () => {
@@ -35,6 +58,10 @@ const Index = () => {
       setSidebarOpen(false);
     }
   };
+
+  const handleLoginClick = () => {
+    navigate('/auth');
+  };
   
   return (
     <div className="relative h-screen flex overflow-hidden bg-medical-background">
@@ -50,6 +77,17 @@ const Index = () => {
       )}
       
       <div className="flex-1 flex flex-col overflow-hidden md:ml-64">
+        {!isAuthenticated && (
+          <div className="absolute top-4 right-4 z-50">
+            <Button 
+              onClick={handleLoginClick}
+              className="bg-medical-primary hover:bg-medical-primary/90 flex items-center gap-2"
+            >
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Button>
+          </div>
+        )}
         <ChatContainer onMenuToggle={toggleSidebar} />
       </div>
       

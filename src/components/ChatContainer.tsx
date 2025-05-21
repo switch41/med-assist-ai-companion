@@ -5,12 +5,13 @@ import ChatMessage, { Message } from './ChatMessage';
 import ChatInput from './ChatInput';
 import TypingIndicator from './TypingIndicator';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatContainerProps {
   onMenuToggle: () => void;
 }
 
-// Sample symptom assessment responses
+// Enhanced symptom assessment responses with more medical context
 const symptomResponses: Record<string, string[]> = {
   headache: [
     "I'm sorry to hear you're experiencing a headache. Could you tell me more about the pain? Is it sharp, dull, throbbing, or something else?",
@@ -32,11 +33,25 @@ const symptomResponses: Record<string, string[]> = {
     "Are you experiencing any other symptoms like fever, shortness of breath, or chest pain?",
     "Based on your description, this sounds like it could be a viral upper respiratory infection or common cold.",
     "I recommend staying well-hydrated, using honey (if over 1 year old) for cough relief, and getting plenty of rest. If you develop difficulty breathing, persistent high fever, or the cough lasts more than 2 weeks, please consult a healthcare provider."
+  ],
+  chest: [
+    "I notice you mentioned chest symptoms. Are you experiencing chest pain, pressure, tightness, or discomfort?",
+    "When did these symptoms start and are they constant or do they come and go?",
+    "Are you experiencing any shortness of breath, sweating, nausea, or pain radiating to your arm, neck, or jaw?",
+    "Chest symptoms can sometimes indicate serious conditions requiring immediate medical attention.",
+    "Based on your description, I strongly recommend seeking immediate medical attention. Chest pain or discomfort could be a sign of a serious cardiovascular issue and should be evaluated by a healthcare professional right away."
+  ],
+  anxiety: [
+    "I understand you're experiencing anxiety. Can you tell me more about what you're feeling?",
+    "How long have you been experiencing these symptoms?",
+    "Are there any specific triggers you've noticed that worsen your anxiety?",
+    "Anxiety is a common condition that can manifest with both physical and psychological symptoms.",
+    "I recommend practicing deep breathing exercises, mindfulness meditation, and considering speaking with a mental health professional. Regular exercise and good sleep hygiene can also help manage anxiety symptoms."
   ]
 };
 
 // Default welcome messages
-const welcomeMessages = [
+const welcomeMessages: Message[] = [
   {
     id: '1',
     content: "Hello! I'm MediAssist, your healthcare assistant. How can I help you today?",
@@ -54,7 +69,79 @@ const welcomeMessages = [
 const ChatContainer: React.FC<ChatContainerProps> = ({ onMenuToggle }) => {
   const [messages, setMessages] = useState<Message[]>(welcomeMessages);
   const [isTyping, setIsTyping] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        setUserId(data.session.user.id);
+        loadChatHistory(data.session.user.id);
+      }
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        loadChatHistory(session.user.id);
+      } else {
+        setUserId(null);
+        setMessages(welcomeMessages);
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+  
+  // Load chat history from database
+  const loadChatHistory = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('chat_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('timestamp', { ascending: true });
+        
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const formattedMessages: Message[] = data.map(msg => ({
+          id: msg.id,
+          content: msg.message,
+          sender: msg.sender as 'user' | 'bot',
+          timestamp: new Date(msg.timestamp)
+        }));
+        
+        setMessages([...welcomeMessages, ...formattedMessages]);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      toast.error('Failed to load chat history');
+    }
+  };
+  
+  // Save message to database
+  const saveMessage = async (message: Message) => {
+    if (!userId) return;
+    
+    try {
+      await supabase.from('chat_history').insert({
+        user_id: userId,
+        message: message.content,
+        sender: message.sender,
+        timestamp: message.timestamp.toISOString()
+      });
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  };
   
   // Function to handle new user messages
   const handleSendMessage = (content: string) => {
@@ -66,6 +153,12 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ onMenuToggle }) => {
     };
     
     setMessages(prev => [...prev, newMessage]);
+    
+    // Save user message to database if logged in
+    if (userId) {
+      saveMessage(newMessage);
+    }
+    
     processUserMessage(content);
   };
   
@@ -83,6 +176,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ onMenuToggle }) => {
       responseSequence = symptomResponses.fever;
     } else if (lowerContent.includes('cough')) {
       responseSequence = symptomResponses.cough;
+    } else if (lowerContent.includes('chest') || lowerContent.includes('heart')) {
+      responseSequence = symptomResponses.chest;
+      // Demonstrate emergency response for chest pain
+      toast.error("Chest pain can be serious. If severe, please call emergency services immediately.", {
+        duration: 10000,
+      });
+    } else if (lowerContent.includes('anxiety') || lowerContent.includes('stress') || lowerContent.includes('worry')) {
+      responseSequence = symptomResponses.anxiety;
     } else if (lowerContent.includes('emergency') || lowerContent.includes('urgent')) {
       // Demonstrate emergency response
       toast.error("If this is a medical emergency, please call emergency services immediately (911 in the US).", {
@@ -130,6 +231,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ onMenuToggle }) => {
     };
     
     setMessages(prev => [...prev, newMessage]);
+    
+    // Save bot message to database if logged in
+    if (userId) {
+      saveMessage(newMessage);
+    }
   };
   
   // Scroll to bottom when messages change

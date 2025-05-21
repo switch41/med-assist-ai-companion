@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IPatient extends Document {
+export interface IProvider extends Document {
   identifier: {
     system: string;
     value: string;
@@ -32,13 +32,29 @@ export interface IPatient extends Document {
     postalCode?: string;
     country?: string;
   }[];
-  maritalStatus?: {
-    coding: {
+  qualification: {
+    code: {
       system: string;
       code: string;
       display: string;
-    }[];
-  };
+    };
+    period: {
+      start: Date;
+      end?: Date;
+    };
+    issuer: {
+      reference: string;
+      display?: string;
+    };
+  }[];
+  specialty: {
+    code: {
+      system: string;
+      code: string;
+      display: string;
+    };
+    primary: boolean;
+  }[];
   communication: {
     language: {
       coding: {
@@ -49,10 +65,20 @@ export interface IPatient extends Document {
     };
     preferred: boolean;
   }[];
-  managingOrganization?: {
+  availability: {
+    dayOfWeek: number; // 0-6 (Sunday-Saturday)
+    availableStartTime: string; // HH:mm format
+    availableEndTime: string; // HH:mm format
+    slotDuration: number; // in minutes
+    breakStartTime?: string; // HH:mm format
+    breakEndTime?: string; // HH:mm format
+  }[];
+  organization: {
     reference: string;
     display?: string;
   };
+  role: 'doctor' | 'nurse' | 'specialist' | 'therapist' | 'pharmacist';
+  status: 'active' | 'inactive' | 'on_leave';
   password: string;
   mfaEnabled: boolean;
   mfaSecret?: string;
@@ -60,7 +86,7 @@ export interface IPatient extends Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const PatientSchema = new Schema<IPatient>({
+const ProviderSchema = new Schema<IProvider>({
   identifier: [{
     system: { type: String, required: true },
     value: { type: String, required: true }
@@ -95,13 +121,29 @@ const PatientSchema = new Schema<IPatient>({
     postalCode: String,
     country: String
   }],
-  maritalStatus: {
-    coding: [{
+  qualification: [{
+    code: {
       system: { type: String, required: true },
       code: { type: String, required: true },
       display: { type: String, required: true }
-    }]
-  },
+    },
+    period: {
+      start: { type: Date, required: true },
+      end: Date
+    },
+    issuer: {
+      reference: { type: String, required: true },
+      display: String
+    }
+  }],
+  specialty: [{
+    code: {
+      system: { type: String, required: true },
+      code: { type: String, required: true },
+      display: { type: String, required: true }
+    },
+    primary: { type: Boolean, default: false }
+  }],
   communication: [{
     language: {
       coding: [{
@@ -112,9 +154,27 @@ const PatientSchema = new Schema<IPatient>({
     },
     preferred: { type: Boolean, default: false }
   }],
-  managingOrganization: {
-    reference: String,
+  availability: [{
+    dayOfWeek: { type: Number, required: true, min: 0, max: 6 },
+    availableStartTime: { type: String, required: true },
+    availableEndTime: { type: String, required: true },
+    slotDuration: { type: Number, required: true, default: 30 },
+    breakStartTime: String,
+    breakEndTime: String
+  }],
+  organization: {
+    reference: { type: String, required: true },
     display: String
+  },
+  role: {
+    type: String,
+    enum: ['doctor', 'nurse', 'specialist', 'therapist', 'pharmacist'],
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'on_leave'],
+    default: 'active'
   },
   password: { type: String, required: true },
   mfaEnabled: { type: Boolean, default: false },
@@ -125,7 +185,7 @@ const PatientSchema = new Schema<IPatient>({
 });
 
 // Hash password before saving
-PatientSchema.pre('save', async function(next) {
+ProviderSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
@@ -138,8 +198,15 @@ PatientSchema.pre('save', async function(next) {
 });
 
 // Compare password method
-PatientSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+ProviderSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export const Patient = mongoose.model<IPatient>('Patient', PatientSchema); 
+// Add indexes for common queries
+ProviderSchema.index({ 'identifier.value': 1 });
+ProviderSchema.index({ 'name.family': 1, 'name.given': 1 });
+ProviderSchema.index({ 'specialty.code.code': 1 });
+ProviderSchema.index({ role: 1 });
+ProviderSchema.index({ status: 1 });
+
+export const Provider = mongoose.model<IProvider>('Provider', ProviderSchema); 

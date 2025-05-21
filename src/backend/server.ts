@@ -2,12 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
-import { config } from './config';
-import { errorHandler } from './middleware/errorHandler';
-import { logger } from './utils/logger';
-import { setupRoutes } from './routes';
-import { setupDatabase } from './config/database';
-import { setupSecurity } from './middleware/security';
+import { config } from './config/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { logger } from './utils/logger.js';
+import { setupRoutes } from './routes/index.js';
+import { setupDatabase } from './config/database.js';
+import { setupSecurity } from './middleware/security.js';
 
 const app = express();
 

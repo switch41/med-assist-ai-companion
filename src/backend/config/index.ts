@@ -49,4 +49,4 @@ const config = configSchema.parse({
   logLevel: process.env.LOG_LEVEL,
 });
 
-export { config }; 
+export { config };
