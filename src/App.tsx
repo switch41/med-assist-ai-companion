@@ -7,6 +7,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import SymptomChecker from "./pages/SymptomChecker";
+import Medications from "./pages/Medications";
+import Appointments from "./pages/Appointments";
+import HealthRecords from "./pages/HealthRecords";
+import Vitals from "./pages/Vitals";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +26,13 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/symptom-checker" element={<SymptomChecker />} />
+          <Route path="/medications" element={<Medications />} />
+          <Route path="/appointments" element={<Appointments />} />
+          <Route path="/health-records" element={<HealthRecords />} />
+          <Route path="/vitals" element={<Vitals />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

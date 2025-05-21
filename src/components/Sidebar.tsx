@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Activity, 
@@ -19,19 +20,30 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const location = useLocation();
+  
   const menuItems = [
-    { icon: <MessageSquare className="h-5 w-5" />, label: 'Chat' },
-    { icon: <Activity className="h-5 w-5" />, label: 'Symptom Checker' },
-    { icon: <Pill className="h-5 w-5" />, label: 'Medications' },
-    { icon: <Calendar className="h-5 w-5" />, label: 'Appointments' },
-    { icon: <FileText className="h-5 w-5" />, label: 'Health Records' },
-    { icon: <HeartPulse className="h-5 w-5" />, label: 'Vitals' },
+    { icon: <MessageSquare className="h-5 w-5" />, label: 'Chat', path: '/' },
+    { icon: <Activity className="h-5 w-5" />, label: 'Symptom Checker', path: '/symptom-checker' },
+    { icon: <Pill className="h-5 w-5" />, label: 'Medications', path: '/medications' },
+    { icon: <Calendar className="h-5 w-5" />, label: 'Appointments', path: '/appointments' },
+    { icon: <FileText className="h-5 w-5" />, label: 'Health Records', path: '/health-records' },
+    { icon: <HeartPulse className="h-5 w-5" />, label: 'Vitals', path: '/vitals' },
   ];
 
   const bottomMenuItems = [
-    { icon: <Settings className="h-5 w-5" />, label: 'Settings' },
-    { icon: <HelpCircle className="h-5 w-5" />, label: 'Help & Support' },
+    { icon: <Settings className="h-5 w-5" />, label: 'Settings', path: '/settings' },
+    { icon: <HelpCircle className="h-5 w-5" />, label: 'Help & Support', path: '/help' },
   ];
+
+  const isActivePath = (path: string) => {
+    // For home path, only match exactly
+    if (path === '/') {
+      return location.pathname === path;
+    }
+    // For other paths, check if current path starts with the item path
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div 
@@ -57,16 +69,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         
         <div className="flex-1 overflow-auto py-4">
           <nav className="space-y-1 px-3">
-            {menuItems.map((item, index) => (
+            {menuItems.map((item) => (
               <Button
-                key={index}
-                variant={index === 0 ? "default" : "ghost"}
+                key={item.path}
+                variant={isActivePath(item.path) ? "default" : "ghost"}
                 className={`w-full justify-start text-left mb-1 ${
-                  index === 0 ? 'bg-medical-primary hover:bg-medical-accent' : ''
+                  isActivePath(item.path) ? 'bg-medical-primary hover:bg-medical-accent' : ''
                 }`}
+                asChild
+                onClick={onClose}
               >
-                {item.icon}
-                <span className="ml-3">{item.label}</span>
+                <Link to={item.path}>
+                  {item.icon}
+                  <span className="ml-3">{item.label}</span>
+                </Link>
               </Button>
             ))}
           </nav>
@@ -74,14 +90,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         
         <div className="p-4 border-t border-gray-100">
           <nav className="space-y-1">
-            {bottomMenuItems.map((item, index) => (
+            {bottomMenuItems.map((item) => (
               <Button
-                key={index}
-                variant="ghost"
-                className="w-full justify-start text-left mb-1"
+                key={item.path}
+                variant={isActivePath(item.path) ? "default" : "ghost"}
+                className={`w-full justify-start text-left mb-1 ${
+                  isActivePath(item.path) ? 'bg-medical-primary hover:bg-medical-accent' : ''
+                }`}
+                asChild
+                onClick={onClose}
               >
-                {item.icon}
-                <span className="ml-3">{item.label}</span>
+                <Link to={item.path}>
+                  {item.icon}
+                  <span className="ml-3">{item.label}</span>
+                </Link>
               </Button>
             ))}
           </nav>
