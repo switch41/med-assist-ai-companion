@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '../hooks/useChat';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,7 @@ export function ChatInterface() {
 
     const variants = {
       emergency: 'destructive',
-      urgent: 'warning',
+      urgent: 'secondary',
       routine: 'default',
     } as const;
 
