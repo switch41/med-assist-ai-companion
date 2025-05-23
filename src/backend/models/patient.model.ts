@@ -57,6 +57,9 @@ export interface IPatient extends Document {
   mfaEnabled: boolean;
   mfaSecret?: string;
   lastLogin?: Date;
+  medicalRecords?: mongoose.Types.ObjectId[];
+  appointments?: mongoose.Types.ObjectId[];
+  medications?: mongoose.Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -119,7 +122,10 @@ const PatientSchema = new Schema<IPatient>({
   password: { type: String, required: true },
   mfaEnabled: { type: Boolean, default: false },
   mfaSecret: String,
-  lastLogin: Date
+  lastLogin: Date,
+  medicalRecords: [{ type: Schema.Types.ObjectId, ref: 'MedicalRecord' }],
+  appointments: [{ type: Schema.Types.ObjectId, ref: 'Appointment' }],
+  medications: [{ type: Schema.Types.ObjectId, ref: 'Medication' }]
 }, {
   timestamps: true
 });
@@ -142,4 +148,4 @@ PatientSchema.methods.comparePassword = async function(candidatePassword: string
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export const Patient = mongoose.model<IPatient>('Patient', PatientSchema); 
+export const Patient = mongoose.model<IPatient>('Patient', PatientSchema);

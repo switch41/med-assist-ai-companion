@@ -187,9 +187,9 @@ export class PatientController extends BaseController<IPatient> {
           identifier: patient.identifier
         },
         medicalHistory: {
-          records: patient.medicalRecords,
-          appointments: patient.appointments,
-          medications: patient.medications
+          records: patient.medicalRecords || [],
+          appointments: patient.appointments || [],
+          medications: patient.medications || []
         }
       });
     } catch (error) {
@@ -267,4 +267,4 @@ export const searchPatients = async (
   } catch (error) {
     next(error);
   }
-}; 
+};
