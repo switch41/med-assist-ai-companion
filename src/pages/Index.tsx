@@ -63,7 +63,7 @@ const Index = () => {
           </Button>
         </div>
       )}
-      <ChatContainer />
+      <ChatContainer onMenuToggle={() => {}} />
       
       {showDisclaimer && <MedicalDisclaimer onAccept={handleAcceptDisclaimer} />}
     </>

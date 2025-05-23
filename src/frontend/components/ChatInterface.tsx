@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '../hooks/useChat';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
-import { Avatar } from './ui/avatar';
-import { Badge } from './ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Loader2, Send, AlertCircle } from 'lucide-react';
-import { cn } from '../utils/cn';
+import { cn } from '@/lib/utils';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -163,4 +163,4 @@ export function ChatInterface() {
       </form>
     </Card>
   );
-} 
+}
