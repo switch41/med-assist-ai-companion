@@ -29,19 +29,15 @@ const HealthRecords = () => {
             <FileText className="mr-2 h-6 w-6 text-medical-primary" />
             Health Records
           </h1>
-          {userId && (
-            <Button className="bg-medical-primary hover:bg-medical-primary/90">
-              <Plus className="h-4 w-4 mr-2" /> Add Report
-            </Button>
-          )}
         </div>
 
         <Tabs defaultValue="documents">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
             <TabsTrigger value="imaging">Imaging</TabsTrigger>
             <TabsTrigger value="uploads">File Uploads</TabsTrigger>
+            <TabsTrigger value="records">Health Records</TabsTrigger>
           </TabsList>
           
           <TabsContent value="documents" className="mt-4">
@@ -121,6 +117,30 @@ const HealthRecords = () => {
               ) : (
                 <Card className="p-8 flex items-center justify-center">
                   <p className="text-muted-foreground">Please log in to upload and manage files</p>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="records" className="mt-4">
+            <div className="space-y-6">
+              {userId ? (
+                <>
+                  <div className="grid md:grid-cols-1 gap-6">
+                    <FileUpload 
+                      type="records" 
+                      userId={userId}
+                      onUploadSuccess={() => window.location.reload()}
+                    />
+                  </div>
+                  
+                  <div className="grid md:grid-cols-1 gap-6">
+                    <FileManager type="records" userId={userId} />
+                  </div>
+                </>
+              ) : (
+                <Card className="p-8 flex items-center justify-center">
+                  <p className="text-muted-foreground">Please log in to upload and manage health records</p>
                 </Card>
               )}
             </div>

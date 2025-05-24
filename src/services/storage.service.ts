@@ -34,6 +34,22 @@ export class StorageService {
     return { data, error };
   }
 
+  // Upload health record to the records bucket
+  static async uploadHealthRecord(file: File, userId: string, fileName?: string): Promise<{ data: any; error: any }> {
+    const fileExt = file.name.split('.').pop();
+    const finalFileName = fileName || `${userId}_record_${Date.now()}.${fileExt}`;
+    const filePath = `${userId}/${finalFileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('records')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    return { data, error };
+  }
+
   // Get public URL for medical report
   static getMedicalReportUrl(filePath: string): string {
     const { data } = supabase.storage
@@ -46,6 +62,14 @@ export class StorageService {
   static getVitalsDataUrl(filePath: string): string {
     const { data } = supabase.storage
       .from('vitals')
+      .getPublicUrl(filePath);
+    return data.publicUrl;
+  }
+
+  // Get public URL for health records
+  static getHealthRecordUrl(filePath: string): string {
+    const { data } = supabase.storage
+      .from('records')
       .getPublicUrl(filePath);
     return data.publicUrl;
   }
@@ -76,6 +100,19 @@ export class StorageService {
     return { data, error };
   }
 
+  // List health records for a user
+  static async listHealthRecords(userId: string): Promise<{ data: any; error: any }> {
+    const { data, error } = await supabase.storage
+      .from('records')
+      .list(userId, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' }
+      });
+
+    return { data, error };
+  }
+
   // Delete medical report
   static async deleteMedicalReport(filePath: string): Promise<{ data: any; error: any }> {
     const { data, error } = await supabase.storage
@@ -89,6 +126,15 @@ export class StorageService {
   static async deleteVitalsData(filePath: string): Promise<{ data: any; error: any }> {
     const { data, error } = await supabase.storage
       .from('vitals')
+      .remove([filePath]);
+
+    return { data, error };
+  }
+
+  // Delete health record
+  static async deleteHealthRecord(filePath: string): Promise<{ data: any; error: any }> {
+    const { data, error } = await supabase.storage
+      .from('records')
       .remove([filePath]);
 
     return { data, error };

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Activity, Download, Trash2, Eye } from 'lucide-react';
+import { FileText, Activity, FolderOpen, Eye, Trash2 } from 'lucide-react';
 import { StorageService } from '@/services/storage.service';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,7 @@ interface FileItem {
 }
 
 interface FileManagerProps {
-  type: 'medical' | 'vitals';
+  type: 'medical' | 'vitals' | 'records';
   userId: string;
 }
 
@@ -28,9 +28,15 @@ const FileManager: React.FC<FileManagerProps> = ({ type, userId }) => {
 
     setLoading(true);
     try {
-      const { data, error } = type === 'medical'
-        ? await StorageService.listMedicalReports(userId)
-        : await StorageService.listVitalsData(userId);
+      let data, error;
+      
+      if (type === 'medical') {
+        ({ data, error } = await StorageService.listMedicalReports(userId));
+      } else if (type === 'vitals') {
+        ({ data, error } = await StorageService.listVitalsData(userId));
+      } else {
+        ({ data, error } = await StorageService.listHealthRecords(userId));
+      }
 
       if (error) {
         throw error;
@@ -57,9 +63,15 @@ const FileManager: React.FC<FileManagerProps> = ({ type, userId }) => {
     const filePath = `${userId}/${fileName}`;
     
     try {
-      const { error } = type === 'medical'
-        ? await StorageService.deleteMedicalReport(filePath)
-        : await StorageService.deleteVitalsData(filePath);
+      let error;
+      
+      if (type === 'medical') {
+        ({ error } = await StorageService.deleteMedicalReport(filePath));
+      } else if (type === 'vitals') {
+        ({ error } = await StorageService.deleteVitalsData(filePath));
+      } else {
+        ({ error } = await StorageService.deleteHealthRecord(filePath));
+      }
 
       if (error) {
         throw error;
@@ -84,23 +96,38 @@ const FileManager: React.FC<FileManagerProps> = ({ type, userId }) => {
 
   const handleView = (fileName: string) => {
     const filePath = `${userId}/${fileName}`;
-    const url = type === 'medical'
-      ? StorageService.getMedicalReportUrl(filePath)
-      : StorageService.getVitalsDataUrl(filePath);
+    let url;
+    
+    if (type === 'medical') {
+      url = StorageService.getMedicalReportUrl(filePath);
+    } else if (type === 'vitals') {
+      url = StorageService.getVitalsDataUrl(filePath);
+    } else {
+      url = StorageService.getHealthRecordUrl(filePath);
+    }
     
     window.open(url, '_blank');
   };
 
-  const icon = type === 'medical' ? <FileText className="h-5 w-5" /> : <Activity className="h-5 w-5" />;
-  const title = type === 'medical' ? 'Medical Reports' : 'Vitals Data Files';
+  const getIcon = () => {
+    if (type === 'medical') return <FileText className="h-5 w-5" />;
+    if (type === 'vitals') return <Activity className="h-5 w-5" />;
+    return <FolderOpen className="h-5 w-5" />;
+  };
+
+  const getTitle = () => {
+    if (type === 'medical') return 'Medical Reports';
+    if (type === 'vitals') return 'Vitals Data Files';
+    return 'Health Records';
+  };
 
   if (loading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {icon}
-            {title}
+            {getIcon()}
+            {getTitle()}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -114,8 +141,8 @@ const FileManager: React.FC<FileManagerProps> = ({ type, userId }) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {icon}
-          {title}
+          {getIcon()}
+          {getTitle()}
         </CardTitle>
       </CardHeader>
       <CardContent>

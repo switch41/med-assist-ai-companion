@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, Activity } from 'lucide-react';
+import { Upload, FileText, Activity, FolderOpen } from 'lucide-react';
 import { StorageService } from '@/services/storage.service';
 import { useToast } from '@/hooks/use-toast';
 
 interface FileUploadProps {
-  type: 'medical' | 'vitals';
+  type: 'medical' | 'vitals' | 'records';
   userId: string;
   onUploadSuccess?: (filePath: string) => void;
 }
@@ -38,17 +38,25 @@ const FileUpload: React.FC<FileUploadProps> = ({ type, userId, onUploadSuccess }
     setUploading(true);
 
     try {
-      const { data, error } = type === 'medical' 
-        ? await StorageService.uploadMedicalReport(file, userId)
-        : await StorageService.uploadVitalsData(file, userId);
+      let data, error;
+      
+      if (type === 'medical') {
+        ({ data, error } = await StorageService.uploadMedicalReport(file, userId));
+      } else if (type === 'vitals') {
+        ({ data, error } = await StorageService.uploadVitalsData(file, userId));
+      } else {
+        ({ data, error } = await StorageService.uploadHealthRecord(file, userId));
+      }
 
       if (error) {
         throw error;
       }
 
+      const fileTypeLabel = type === 'medical' ? 'Medical report' : type === 'vitals' ? 'Vitals data' : 'Health record';
+      
       toast({
         title: "Success",
-        description: `${type === 'medical' ? 'Medical report' : 'Vitals data'} uploaded successfully`,
+        description: `${fileTypeLabel} uploaded successfully`,
       });
 
       if (onUploadSuccess && data?.path) {
@@ -71,27 +79,44 @@ const FileUpload: React.FC<FileUploadProps> = ({ type, userId, onUploadSuccess }
     }
   };
 
-  const icon = type === 'medical' ? <FileText className="h-5 w-5" /> : <Activity className="h-5 w-5" />;
-  const title = type === 'medical' ? 'Upload Medical Report' : 'Upload Vitals Data';
-  const description = type === 'medical' 
-    ? 'Upload medical reports, lab results, or imaging files'
-    : 'Upload vitals data files from wearables or manual recordings';
+  const getIcon = () => {
+    if (type === 'medical') return <FileText className="h-5 w-5" />;
+    if (type === 'vitals') return <Activity className="h-5 w-5" />;
+    return <FolderOpen className="h-5 w-5" />;
+  };
+
+  const getTitle = () => {
+    if (type === 'medical') return 'Upload Medical Report';
+    if (type === 'vitals') return 'Upload Vitals Data';
+    return 'Upload Health Record';
+  };
+
+  const getDescription = () => {
+    if (type === 'medical') return 'Upload medical reports, lab results, or imaging files';
+    if (type === 'vitals') return 'Upload vitals data files from wearables or manual recordings';
+    return 'Upload health records, documents, or reports';
+  };
+
+  const getAcceptedFiles = () => {
+    if (type === 'vitals') return '.csv,.json,.txt,.xml';
+    return '.pdf,.jpg,.jpeg,.png,.doc,.docx';
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {icon}
-          {title}
+          {getIcon()}
+          {getTitle()}
         </CardTitle>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-sm text-muted-foreground">{getDescription()}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <Input
           id={`file-input-${type}`}
           type="file"
           onChange={handleFileChange}
-          accept={type === 'medical' ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.csv,.json,.txt,.xml'}
+          accept={getAcceptedFiles()}
         />
         {file && (
           <p className="text-sm text-muted-foreground">

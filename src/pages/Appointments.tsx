@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Plus, Video } from 'lucide-react';
+import { Calendar, Video } from 'lucide-react';
+import AddAppointmentDialog from '@/components/AddAppointmentDialog';
 
 const Appointments = () => {
   const appointments = [
@@ -22,6 +23,11 @@ const Appointments = () => {
     }
   ];
 
+  const handleAppointmentAdded = () => {
+    // Refresh appointments list or handle the new appointment
+    console.log('Appointment added successfully');
+  };
+
   return (
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
@@ -30,9 +36,7 @@ const Appointments = () => {
             <Calendar className="mr-2 h-6 w-6 text-medical-primary" />
             Appointments
           </h1>
-          <Button className="bg-medical-primary hover:bg-medical-primary/90">
-            <Plus className="h-4 w-4 mr-2" /> Schedule Appointment
-          </Button>
+          <AddAppointmentDialog onAppointmentAdded={handleAppointmentAdded} />
         </div>
 
         <div className="grid gap-4">
