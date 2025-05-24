@@ -1,15 +1,25 @@
+
 import { Request, Response, NextFunction } from 'express';
 import { Model, Document } from 'mongoose';
+import { AppError } from '../middleware/errorHandler';
+import { logger } from '../utils/logger';
 
 export class BaseController<T extends Document> {
-  constructor(private model: Model<T>) {}
+  protected model: Model<T>;
+
+  constructor(model: Model<T>) {
+    this.model = model;
+  }
 
   // Create a new document
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const document = new this.model(req.body);
       const savedDocument = await document.save();
-      res.status(201).json(savedDocument);
+      res.status(201).json({
+        status: 'success',
+        data: savedDocument,
+      });
     } catch (error) {
       next(error);
     }
@@ -18,47 +28,29 @@ export class BaseController<T extends Document> {
   // Get all documents with pagination and filtering
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const skip = (page - 1) * limit;
-
-      // Build filter from query parameters
-      const filter: any = {};
-      Object.keys(req.query).forEach(key => {
-        if (!['page', 'limit', 'sort'].includes(key)) {
-          filter[key] = req.query[key];
-        }
-      });
-
-      // Build sort object
-      const sort: any = {};
-      if (req.query.sort) {
-        const sortFields = (req.query.sort as string).split(',');
-        sortFields.forEach(field => {
-          const order = field.startsWith('-') ? -1 : 1;
-          const fieldName = field.startsWith('-') ? field.substring(1) : field;
-          sort[fieldName] = order;
-        });
-      }
+      const { page = 1, limit = 10, sort = '-createdAt', ...filters } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
 
       const [documents, total] = await Promise.all([
         this.model
-          .find(filter)
-          .sort(sort)
+          .find(filters)
+          .sort(sort as string)
           .skip(skip)
-          .limit(limit)
+          .limit(Number(limit))
           .exec(),
-        this.model.countDocuments(filter)
+        this.model.countDocuments(filters)
       ]);
 
       res.json({
+        status: 'success',
+        results: documents.length,
         data: documents,
         pagination: {
           total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit)
-        }
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
+        },
       });
     } catch (error) {
       next(error);
@@ -70,9 +62,12 @@ export class BaseController<T extends Document> {
     try {
       const document = await this.model.findById(req.params.id);
       if (!document) {
-        return res.status(404).json({ message: 'Document not found' });
+        throw new AppError(404, 'Document not found');
       }
-      res.json(document);
+      res.json({
+        status: 'success',
+        data: document,
+      });
     } catch (error) {
       next(error);
     }
@@ -87,9 +82,12 @@ export class BaseController<T extends Document> {
         { new: true, runValidators: true }
       );
       if (!document) {
-        return res.status(404).json({ message: 'Document not found' });
+        throw new AppError(404, 'Document not found');
       }
-      res.json(document);
+      res.json({
+        status: 'success',
+        data: document,
+      });
     } catch (error) {
       next(error);
     }
@@ -100,7 +98,7 @@ export class BaseController<T extends Document> {
     try {
       const document = await this.model.findByIdAndDelete(req.params.id);
       if (!document) {
-        return res.status(404).json({ message: 'Document not found' });
+        throw new AppError(404, 'Document not found');
       }
       res.status(204).send();
     } catch (error) {
@@ -113,13 +111,16 @@ export class BaseController<T extends Document> {
     try {
       const document = await this.model.findByIdAndUpdate(
         req.params.id,
-        { status: 'deleted' },
+        { deletedAt: new Date() },
         { new: true }
       );
       if (!document) {
-        return res.status(404).json({ message: 'Document not found' });
+        throw new AppError(404, 'Document not found');
       }
-      res.json(document);
+      res.json({
+        status: 'success',
+        data: document,
+      });
     } catch (error) {
       next(error);
     }
@@ -130,15 +131,18 @@ export class BaseController<T extends Document> {
     try {
       const document = await this.model.findByIdAndUpdate(
         req.params.id,
-        { status: 'active' },
+        { $unset: { deletedAt: 1 } },
         { new: true }
       );
       if (!document) {
-        return res.status(404).json({ message: 'Document not found' });
+        throw new AppError(404, 'Document not found');
       }
-      res.json(document);
+      res.json({
+        status: 'success',
+        data: document,
+      });
     } catch (error) {
       next(error);
     }
   };
-} 
+}
