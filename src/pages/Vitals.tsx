@@ -1,11 +1,26 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HeartPulse, Plus } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FileUpload from '@/components/FileUpload';
+import FileManager from '@/components/FileManager';
+import { supabase } from '@/integrations/supabase/client';
 
 const Vitals = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    
+    getUser();
+  }, []);
+
   // Sample data for visualization
   const heartRateData = [
     { date: 'May 15', value: 72 },
@@ -40,71 +55,99 @@ const Vitals = () => {
           </Button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Heart Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={heartRateData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={['dataMin - 10', 'dataMax + 10']} />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#ef4444" 
-                      activeDot={{ r: 8 }} 
-                      name="Heart Rate (bpm)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-2xl font-semibold">76 BPM</p>
-                <p className="text-sm text-muted-foreground">Current Heart Rate</p>
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="charts">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="charts">Charts</TabsTrigger>
+            <TabsTrigger value="files">Data Files</TabsTrigger>
+          </TabsList>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Blood Pressure</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={bloodPressureData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[60, 140]} />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="systolic" 
-                      stroke="#0369a1" 
-                      activeDot={{ r: 8 }}
-                      name="Systolic (mmHg)" 
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="diastolic" 
-                      stroke="#0ea5e9" 
-                      name="Diastolic (mmHg)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-2xl font-semibold">120/80 mmHg</p>
-                <p className="text-sm text-muted-foreground">Current Blood Pressure</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="charts" className="mt-4">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Heart Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={heartRateData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis domain={['dataMin - 10', 'dataMax + 10']} />
+                        <Tooltip />
+                        <Line 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="#ef4444" 
+                          activeDot={{ r: 8 }} 
+                          name="Heart Rate (bpm)"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-2xl font-semibold">76 BPM</p>
+                    <p className="text-sm text-muted-foreground">Current Heart Rate</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Blood Pressure</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={bloodPressureData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis domain={[60, 140]} />
+                        <Tooltip />
+                        <Line 
+                          type="monotone" 
+                          dataKey="systolic" 
+                          stroke="#0369a1" 
+                          activeDot={{ r: 8 }}
+                          name="Systolic (mmHg)" 
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="diastolic" 
+                          stroke="#0ea5e9" 
+                          name="Diastolic (mmHg)"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-2xl font-semibold">120/80 mmHg</p>
+                    <p className="text-sm text-muted-foreground">Current Blood Pressure</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="files" className="mt-4">
+            <div className="space-y-6">
+              {userId ? (
+                <>
+                  <FileUpload 
+                    type="vitals" 
+                    userId={userId}
+                    onUploadSuccess={() => window.location.reload()}
+                  />
+                  <FileManager type="vitals" userId={userId} />
+                </>
+              ) : (
+                <Card className="p-8 flex items-center justify-center">
+                  <p className="text-muted-foreground">Please log in to upload and manage vitals data files</p>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

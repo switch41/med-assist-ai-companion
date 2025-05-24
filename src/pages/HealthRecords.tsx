@@ -4,8 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Upload } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FileUpload from '@/components/FileUpload';
+import FileManager from '@/components/FileManager';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 const HealthRecords = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    
+    getUser();
+  }, []);
+
   return (
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
@@ -14,9 +29,6 @@ const HealthRecords = () => {
             <FileText className="mr-2 h-6 w-6 text-medical-primary" />
             Health Records
           </h1>
-          <Button className="bg-medical-primary hover:bg-medical-primary/90">
-            <Upload className="h-4 w-4 mr-2" /> Upload Document
-          </Button>
         </div>
 
         <Tabs defaultValue="documents">
@@ -24,7 +36,7 @@ const HealthRecords = () => {
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
             <TabsTrigger value="imaging">Imaging</TabsTrigger>
-            <TabsTrigger value="vaccinations">Vaccinations</TabsTrigger>
+            <TabsTrigger value="uploads">File Uploads</TabsTrigger>
           </TabsList>
           
           <TabsContent value="documents" className="mt-4">
@@ -79,26 +91,33 @@ const HealthRecords = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="vaccinations" className="mt-4">
-            <div className="grid gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">COVID-19 Vaccine (Booster)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Date: December 10, 2024</p>
-                  <p className="text-sm text-muted-foreground">Manufacturer: Pfizer-BioNTech</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Influenza Vaccine</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Date: October 15, 2024</p>
-                  <p className="text-sm text-muted-foreground">Type: Quadrivalent</p>
-                </CardContent>
-              </Card>
+          <TabsContent value="uploads" className="mt-4">
+            <div className="space-y-6">
+              {userId ? (
+                <>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <FileUpload 
+                      type="medical" 
+                      userId={userId}
+                      onUploadSuccess={() => window.location.reload()}
+                    />
+                    <FileUpload 
+                      type="vitals" 
+                      userId={userId}
+                      onUploadSuccess={() => window.location.reload()}
+                    />
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <FileManager type="medical" userId={userId} />
+                    <FileManager type="vitals" userId={userId} />
+                  </div>
+                </>
+              ) : (
+                <Card className="p-8 flex items-center justify-center">
+                  <p className="text-muted-foreground">Please log in to upload and manage files</p>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>
