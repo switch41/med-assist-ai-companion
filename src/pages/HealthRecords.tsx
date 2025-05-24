@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Upload } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FileUpload from '@/components/FileUpload';
 import FileManager from '@/components/FileManager';
@@ -29,6 +29,11 @@ const HealthRecords = () => {
             <FileText className="mr-2 h-6 w-6 text-medical-primary" />
             Health Records
           </h1>
+          {userId && (
+            <Button className="bg-medical-primary hover:bg-medical-primary/90">
+              <Plus className="h-4 w-4 mr-2" /> Add Report
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="documents">

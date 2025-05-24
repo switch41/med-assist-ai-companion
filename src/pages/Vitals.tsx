@@ -1,16 +1,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { HeartPulse, Plus } from 'lucide-react';
+import { HeartPulse } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FileUpload from '@/components/FileUpload';
 import FileManager from '@/components/FileManager';
+import AddVitalsDialog from '@/components/AddVitalsDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Vital {
+  id: string;
+  vital_type: string;
+  value: number;
+  unit: string;
+  measured_at: string;
+  notes: string;
+  source: string;
+}
 
 const Vitals = () => {
   const [userId, setUserId] = useState<string | null>(null);
+  const [vitals, setVitals] = useState<Vital[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const getUser = async () => {
@@ -21,26 +35,70 @@ const Vitals = () => {
     getUser();
   }, []);
 
-  // Sample data for visualization
-  const heartRateData = [
-    { date: 'May 15', value: 72 },
-    { date: 'May 16', value: 75 },
-    { date: 'May 17', value: 71 },
-    { date: 'May 18', value: 78 },
-    { date: 'May 19', value: 74 },
-    { date: 'May 20', value: 73 },
-    { date: 'May 21', value: 76 },
-  ];
+  const loadVitals = async () => {
+    if (!userId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('vitals')
+        .select('*')
+        .eq('user_id', userId)
+        .order('measured_at', { ascending: false });
 
-  const bloodPressureData = [
-    { date: 'May 15', systolic: 120, diastolic: 80 },
-    { date: 'May 16', systolic: 118, diastolic: 79 },
-    { date: 'May 17', systolic: 122, diastolic: 82 },
-    { date: 'May 18', systolic: 125, diastolic: 84 },
-    { date: 'May 19', systolic: 121, diastolic: 81 },
-    { date: 'May 20', systolic: 119, diastolic: 79 },
-    { date: 'May 21', systolic: 120, diastolic: 80 },
-  ];
+      if (error) throw error;
+      setVitals(data || []);
+    } catch (error) {
+      console.error('Error loading vitals:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load vitals",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      loadVitals();
+    }
+  }, [userId]);
+
+  const handleVitalAdded = () => {
+    loadVitals();
+  };
+
+  // Sample data for visualization (you can replace this with actual data from vitals)
+  const heartRateData = vitals
+    .filter(v => v.vital_type === 'heart_rate')
+    .slice(0, 7)
+    .map(v => ({
+      date: new Date(v.measured_at).toLocaleDateString(),
+      value: v.value
+    }));
+
+  const bloodPressureData = vitals
+    .filter(v => v.vital_type === 'blood_pressure_systolic' || v.vital_type === 'blood_pressure_diastolic')
+    .slice(0, 7)
+    .reduce((acc, v) => {
+      const date = new Date(v.measured_at).toLocaleDateString();
+      const existing = acc.find(item => item.date === date);
+      if (existing) {
+        if (v.vital_type === 'blood_pressure_systolic') {
+          existing.systolic = v.value;
+        } else {
+          existing.diastolic = v.value;
+        }
+      } else {
+        acc.push({
+          date,
+          systolic: v.vital_type === 'blood_pressure_systolic' ? v.value : 0,
+          diastolic: v.vital_type === 'blood_pressure_diastolic' ? v.value : 0
+        });
+      }
+      return acc;
+    }, [] as any[]);
 
   return (
     <div className="flex-1 p-6 overflow-y-auto">
@@ -50,9 +108,7 @@ const Vitals = () => {
             <HeartPulse className="mr-2 h-6 w-6 text-medical-primary" />
             Vitals & Wearable Data
           </h1>
-          <Button className="bg-medical-primary hover:bg-medical-primary/90">
-            <Plus className="h-4 w-4 mr-2" /> Log Vitals
-          </Button>
+          <AddVitalsDialog onVitalAdded={handleVitalAdded} />
         </div>
 
         <Tabs defaultValue="charts">
@@ -70,7 +126,15 @@ const Vitals = () => {
                 <CardContent>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={heartRateData}>
+                      <LineChart data={heartRateData.length > 0 ? heartRateData : [
+                        { date: 'May 15', value: 72 },
+                        { date: 'May 16', value: 75 },
+                        { date: 'May 17', value: 71 },
+                        { date: 'May 18', value: 78 },
+                        { date: 'May 19', value: 74 },
+                        { date: 'May 20', value: 73 },
+                        { date: 'May 21', value: 76 },
+                      ]}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis domain={['dataMin - 10', 'dataMax + 10']} />
@@ -86,7 +150,9 @@ const Vitals = () => {
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="text-2xl font-semibold">76 BPM</p>
+                    <p className="text-2xl font-semibold">
+                      {heartRateData.length > 0 ? `${heartRateData[0].value} BPM` : '76 BPM'}
+                    </p>
                     <p className="text-sm text-muted-foreground">Current Heart Rate</p>
                   </div>
                 </CardContent>
@@ -99,7 +165,15 @@ const Vitals = () => {
                 <CardContent>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={bloodPressureData}>
+                      <LineChart data={bloodPressureData.length > 0 ? bloodPressureData : [
+                        { date: 'May 15', systolic: 120, diastolic: 80 },
+                        { date: 'May 16', systolic: 118, diastolic: 79 },
+                        { date: 'May 17', systolic: 122, diastolic: 82 },
+                        { date: 'May 18', systolic: 125, diastolic: 84 },
+                        { date: 'May 19', systolic: 121, diastolic: 81 },
+                        { date: 'May 20', systolic: 119, diastolic: 79 },
+                        { date: 'May 21', systolic: 120, diastolic: 80 },
+                      ]}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis domain={[60, 140]} />
