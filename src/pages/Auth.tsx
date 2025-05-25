@@ -6,14 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { UserRound, KeyRound, Mail, User } from "lucide-react";
+import { UserRound, KeyRound, Mail, User, Phone, Calendar } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -27,7 +31,6 @@ const Auth = () => {
 
     checkSession();
 
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate('/');
@@ -69,6 +72,18 @@ const Auth = () => {
       return;
     }
 
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -76,7 +91,10 @@ const Auth = () => {
         options: {
           data: {
             first_name: firstName,
-            last_name: lastName
+            last_name: lastName,
+            phone: phone,
+            date_of_birth: dateOfBirth,
+            gender: gender
           }
         }
       });
@@ -84,7 +102,11 @@ const Auth = () => {
       if (error) throw error;
       toast.success("Account created successfully! Please check your email for verification.");
     } catch (error: any) {
-      toast.error(error.message || "Error creating account");
+      if (error.message.includes('User already registered')) {
+        toast.error("An account with this email already exists. Please sign in instead.");
+      } else {
+        toast.error(error.message || "Error creating account");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -109,15 +131,18 @@ const Auth = () => {
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="signin">
             <form onSubmit={handleSignIn}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
+                      id="signin-email"
                       type="email"
-                      placeholder="Email"
+                      placeholder="Enter your email"
                       className="pl-10"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -126,11 +151,13 @@ const Auth = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
                   <div className="relative">
                     <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
+                      id="signin-password"
                       type="password"
-                      placeholder="Password"
+                      placeholder="Enter your password"
                       className="pl-10"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -140,28 +167,39 @@ const Auth = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full bg-medical-primary hover:bg-medical-primary/90" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-medical-primary hover:bg-medical-primary/90" 
+                  disabled={isLoading}
+                >
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </CardFooter>
             </form>
           </TabsContent>
+          
           <TabsContent value="signup">
             <form onSubmit={handleSignUp}>
               <CardContent className="space-y-4">
                 <div className="flex space-x-2">
-                  <div className="relative flex-1">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="First Name"
-                      className="pl-10"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      required
-                    />
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="first-name">First Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="first-name"
+                        placeholder="First Name"
+                        className="pl-10"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="relative flex-1">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="last-name">Last Name</Label>
                     <Input
+                      id="last-name"
                       placeholder="Last Name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
@@ -169,12 +207,15 @@ const Auth = () => {
                     />
                   </div>
                 </div>
+                
                 <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
+                      id="signup-email"
                       type="email"
-                      placeholder="Email"
+                      placeholder="Enter your email"
                       className="pl-10"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -182,22 +223,76 @@ const Auth = () => {
                     />
                   </div>
                 </div>
+                
                 <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
                   <div className="relative">
                     <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
+                      id="signup-password"
                       type="password"
-                      placeholder="Password"
+                      placeholder="Create a password (min 6 characters)"
                       className="pl-10"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={6}
                     />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number (Optional)</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="Phone number"
+                      className="pl-10"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="date-of-birth">Date of Birth (Optional)</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="date-of-birth"
+                        type="date"
+                        className="pl-10"
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="gender">Gender (Optional)</Label>
+                    <select
+                      id="gender"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                      <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
                   </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full bg-medical-primary hover:bg-medical-primary/90" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-medical-primary hover:bg-medical-primary/90" 
+                  disabled={isLoading}
+                >
                   {isLoading ? "Creating Account..." : "Create Account"}
                 </Button>
               </CardFooter>
