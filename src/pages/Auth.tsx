@@ -23,8 +23,12 @@ const Auth = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      console.log('Checking existing session...');
+      const { data, error } = await supabase.auth.getSession();
+      console.log('Session check result:', { data, error });
+      
       if (data.session) {
+        console.log('User already authenticated, redirecting to home');
         navigate('/');
       }
     };
@@ -32,6 +36,7 @@ const Auth = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', { event, session });
       if (session) {
         navigate('/');
       }
@@ -44,18 +49,27 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Attempting sign in with:', { email });
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) throw error;
+      console.log('Sign in response:', { data, error });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
+      }
+
+      console.log('Sign in successful!');
       toast.success("Signed in successfully!");
       navigate('/');
     } catch (error: any) {
+      console.error('Sign in failed:', error);
       toast.error(error.message || "Error signing in");
     } finally {
       setIsLoading(false);
@@ -64,6 +78,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Attempting sign up with:', { email, firstName, lastName });
     setIsLoading(true);
 
     if (!firstName || !lastName) {
@@ -85,7 +100,7 @@ const Auth = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -99,9 +114,17 @@ const Auth = () => {
         }
       });
 
-      if (error) throw error;
+      console.log('Sign up response:', { data, error });
+
+      if (error) {
+        console.error('Sign up error:', error);
+        throw error;
+      }
+
+      console.log('Sign up successful!');
       toast.success("Account created successfully! Please check your email for verification.");
     } catch (error: any) {
+      console.error('Sign up failed:', error);
       if (error.message.includes('User already registered')) {
         toast.error("An account with this email already exists. Please sign in instead.");
       } else {
