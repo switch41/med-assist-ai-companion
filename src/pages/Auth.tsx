@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { UserRound, KeyRound, Mail, User, Phone, Calendar } from "lucide-react";
 
@@ -17,6 +19,7 @@ const Auth = () => {
   const [phone, setPhone] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -67,7 +70,8 @@ const Auth = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', { event, session });
-      if (session) {
+      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        console.log('User authenticated, navigating to home');
         navigate('/');
       }
     });
@@ -79,7 +83,7 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Attempting sign in with:', { email });
+    console.log('Attempting sign in with:', { email, rememberMe });
     setIsLoading(true);
 
     try {
@@ -92,15 +96,29 @@ const Auth = () => {
 
       if (error) {
         console.error('Sign in error:', error);
-        throw error;
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error("Invalid email or password. Please check your credentials.");
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error("Please check your email and click the confirmation link before signing in.");
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
+
+      // Handle remember me option
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
       }
 
       console.log('Sign in successful!');
-      toast.success("Signed in successfully!");
-      navigate('/');
+      toast.success("Welcome back! Signed in successfully.");
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       console.error('Sign in failed:', error);
-      toast.error(error.message || "Error signing in");
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -148,18 +166,27 @@ const Auth = () => {
 
       if (error) {
         console.error('Sign up error:', error);
-        throw error;
+        if (error.message.includes('User already registered')) {
+          toast.error("An account with this email already exists. Please sign in instead.");
+        } else {
+          toast.error(error.message);
+        }
+        return;
       }
 
-      console.log('Sign up successful!');
-      toast.success("Account created successfully! Please check your email for verification.");
+      if (data.user && !data.session) {
+        // Email confirmation required
+        console.log('Sign up successful, email confirmation required');
+        toast.success("Account created successfully! Please check your email for verification link.");
+      } else if (data.session) {
+        // Auto sign-in (email confirmation disabled)
+        console.log('Sign up successful with auto sign-in');
+        toast.success("Account created successfully! Welcome to MediAssist!");
+        // Navigation will be handled by the auth state change listener
+      }
     } catch (error: any) {
       console.error('Sign up failed:', error);
-      if (error.message.includes('User already registered')) {
-        toast.error("An account with this email already exists. Please sign in instead.");
-      } else {
-        toast.error(error.message || "Error creating account");
-      }
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -217,6 +244,16 @@ const Auth = () => {
                       required
                     />
                   </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label htmlFor="remember-me" className="text-sm font-normal">
+                    Remember me
+                  </Label>
                 </div>
               </CardContent>
               <CardFooter>
