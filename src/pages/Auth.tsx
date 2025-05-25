@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +19,37 @@ const Auth = () => {
   const [gender, setGender] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    // Handle email verification from URL parameters
+    const handleEmailVerification = async () => {
+      const token = searchParams.get('token');
+      const type = searchParams.get('type');
+      
+      if (token && type) {
+        console.log('Handling email verification:', { token, type });
+        try {
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: type as any
+          });
+          
+          if (error) {
+            console.error('Email verification error:', error);
+            toast.error('Email verification failed. Please try signing in.');
+          } else {
+            console.log('Email verification successful:', data);
+            toast.success('Email verified successfully! You are now signed in.');
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('Email verification exception:', error);
+          toast.error('Email verification failed. Please try signing in.');
+        }
+      }
+    };
+
     const checkSession = async () => {
       console.log('Checking existing session...');
       const { data, error } = await supabase.auth.getSession();
@@ -33,6 +61,8 @@ const Auth = () => {
       }
     };
 
+    // Handle email verification first, then check session
+    handleEmailVerification();
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -45,7 +75,7 @@ const Auth = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
