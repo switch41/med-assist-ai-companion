@@ -8,6 +8,7 @@ import AppLayout from "./components/AppLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import SymptomChecker from "./pages/SymptomChecker";
 import Medications from "./pages/Medications";
 import Appointments from "./pages/Appointments";
@@ -25,8 +26,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Auth route outside the main layout */}
+          {/* Auth routes outside the main layout */}
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Main layout with sidebar */}
           <Route element={<AppLayout />}>
