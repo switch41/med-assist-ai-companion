@@ -25,6 +25,13 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    // Load remembered email if available
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+
     // Handle email verification from URL parameters
     const handleEmailVerification = async () => {
       const token = searchParams.get('token');
@@ -86,9 +93,15 @@ const Auth = () => {
     console.log('Attempting sign in with:', { email, rememberMe });
     setIsLoading(true);
 
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       });
 
@@ -97,20 +110,25 @@ const Auth = () => {
       if (error) {
         console.error('Sign in error:', error);
         if (error.message.includes('Invalid login credentials')) {
-          toast.error("Invalid email or password. Please check your credentials.");
+          toast.error("Invalid email or password. Please check your credentials and try again.");
         } else if (error.message.includes('Email not confirmed')) {
           toast.error("Please check your email and click the confirmation link before signing in.");
+        } else if (error.message.includes('Too many requests')) {
+          toast.error("Too many login attempts. Please wait a moment and try again.");
         } else {
-          toast.error(error.message);
+          toast.error(`Login failed: ${error.message}`);
         }
+        setIsLoading(false);
         return;
       }
 
       // Handle remember me option
       if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem('rememberedEmail', email);
+        console.log('Email saved to localStorage for remember me');
       } else {
-        localStorage.removeItem('rememberMe');
+        localStorage.removeItem('rememberedEmail');
+        console.log('Email removed from localStorage');
       }
 
       console.log('Sign in successful!');
@@ -119,7 +137,6 @@ const Auth = () => {
     } catch (error: any) {
       console.error('Sign in failed:', error);
       toast.error("An unexpected error occurred. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -149,7 +166,7 @@ const Auth = () => {
 
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
@@ -168,9 +185,12 @@ const Auth = () => {
         console.error('Sign up error:', error);
         if (error.message.includes('User already registered')) {
           toast.error("An account with this email already exists. Please sign in instead.");
+        } else if (error.message.includes('Password should be at least 6 characters')) {
+          toast.error("Password must be at least 6 characters long.");
         } else {
-          toast.error(error.message);
+          toast.error(`Sign up failed: ${error.message}`);
         }
+        setIsLoading(false);
         return;
       }
 
@@ -227,6 +247,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -242,6 +263,7 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      autoComplete="current-password"
                     />
                   </div>
                 </div>
@@ -252,7 +274,7 @@ const Auth = () => {
                     onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                   />
                   <Label htmlFor="remember-me" className="text-sm font-normal">
-                    Remember me
+                    Remember my email
                   </Label>
                 </div>
               </CardContent>
@@ -283,6 +305,7 @@ const Auth = () => {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
+                        autoComplete="given-name"
                       />
                     </div>
                   </div>
@@ -294,6 +317,7 @@ const Auth = () => {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
+                      autoComplete="family-name"
                     />
                   </div>
                 </div>
@@ -310,6 +334,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -327,6 +352,7 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>
@@ -342,6 +368,7 @@ const Auth = () => {
                       className="pl-10"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      autoComplete="tel"
                     />
                   </div>
                 </div>
@@ -357,6 +384,7 @@ const Auth = () => {
                         className="pl-10"
                         value={dateOfBirth}
                         onChange={(e) => setDateOfBirth(e.target.value)}
+                        autoComplete="bday"
                       />
                     </div>
                   </div>
