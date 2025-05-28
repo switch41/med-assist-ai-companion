@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -226,7 +225,7 @@ const Auth = () => {
       } else if (data.session) {
         // Auto sign-in (email confirmation disabled)
         console.log('Sign up successful with auto sign-in');
-        toast.success("Account created successfully! Welcome to MediAssist!");
+        toast.success("Account created successfully! Welcome to SwitchHealthCare!");
         // Navigation will be handled by the auth state change listener
       }
     } catch (error: any) {
