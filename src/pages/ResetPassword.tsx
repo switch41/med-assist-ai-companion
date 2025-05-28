@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { KeyRound, Lock } from "lucide-react";
+import { KeyRound, Lock, ShieldCheck, ArrowLeft } from "lucide-react";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -27,7 +27,6 @@ const ResetPassword = () => {
       
       if (accessToken && refreshToken) {
         try {
-          // Set the session with the tokens from the URL
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
@@ -100,7 +99,6 @@ const ResetPassword = () => {
         console.log('Password reset successful');
         toast.success("Password reset successfully! You are now logged in.");
         
-        // Clear the URL parameters and redirect to home
         window.history.replaceState({}, document.title, window.location.pathname);
         navigate('/');
       }
@@ -115,10 +113,17 @@ const ResetPassword = () => {
   if (isCheckingToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-medical-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verifying reset link...</p>
-        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex justify-center mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-medical-primary"></div>
+            </div>
+            <CardTitle className="text-xl font-semibold text-center text-gray-700">Verifying reset link...</CardTitle>
+            <CardDescription className="text-center text-gray-500">
+              Please wait while we verify your password reset request.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
@@ -133,18 +138,22 @@ const ResetPassword = () => {
                 <Lock size={32} className="text-red-600" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-center">Invalid Reset Link</CardTitle>
-            <CardDescription className="text-center">
-              This password reset link is invalid or has expired. Please request a new one.
+            <CardTitle className="text-xl font-semibold text-center text-gray-800">Reset link expired</CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              This password reset link is invalid or has expired. Password reset links are only valid for a limited time for security reasons.
             </CardDescription>
           </CardHeader>
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-3">
             <Button 
               onClick={() => navigate('/auth')}
               className="w-full bg-medical-primary hover:bg-medical-primary/90"
             >
-              Back to Login
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to sign in
             </Button>
+            <p className="text-sm text-gray-500 text-center">
+              You can request a new password reset from the sign in page.
+            </p>
           </CardFooter>
         </Card>
       </div>
@@ -156,26 +165,26 @@ const ResetPassword = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <div className="bg-medical-primary/20 p-3 rounded-full">
-              <KeyRound size={32} className="text-medical-primary" />
+            <div className="bg-green-100 p-3 rounded-full">
+              <ShieldCheck size={32} className="text-green-600" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Reset Your Password</CardTitle>
-          <CardDescription className="text-center">
-            Enter your new password below
+          <CardTitle className="text-xl font-semibold text-center text-gray-800">Create new password</CardTitle>
+          <CardDescription className="text-center text-gray-600">
+            Your new password must be different from your previous password and contain at least 6 characters.
           </CardDescription>
         </CardHeader>
         
         <form onSubmit={handleResetPassword}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
+              <Label htmlFor="new-password" className="text-sm font-medium">New Password</Label>
               <div className="relative">
                 <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="new-password"
                   type="password"
-                  placeholder="Enter new password (min 6 characters)"
+                  placeholder="Enter your new password"
                   className="pl-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -184,16 +193,17 @@ const ResetPassword = () => {
                   autoComplete="new-password"
                 />
               </div>
+              <p className="text-xs text-gray-500">Must be at least 6 characters long</p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="confirm-password"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder="Confirm your new password"
                   className="pl-10"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -205,13 +215,23 @@ const ResetPassword = () => {
             </div>
           </CardContent>
           
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-3">
             <Button 
               type="submit" 
               className="w-full bg-medical-primary hover:bg-medical-primary/90" 
               disabled={isLoading}
             >
-              {isLoading ? "Resetting Password..." : "Reset Password"}
+              {isLoading ? "Updating password..." : "Update password"}
+            </Button>
+            
+            <Button 
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/auth')}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to sign in
             </Button>
           </CardFooter>
         </form>

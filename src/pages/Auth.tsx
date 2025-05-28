@@ -280,9 +280,9 @@ const Auth = () => {
                 <Mail size={32} className="text-medical-primary" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
-            <CardDescription className="text-center">
-              Enter your email address and we'll send you a link to reset your password
+            <CardTitle className="text-2xl font-bold text-center">Forgot your password?</CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              No worries! Enter your email and we'll send you a reset link.
             </CardDescription>
           </CardHeader>
           
@@ -312,7 +312,7 @@ const Auth = () => {
                 className="w-full bg-medical-primary hover:bg-medical-primary/90" 
                 disabled={isResettingPassword}
               >
-                {isResettingPassword ? "Sending Reset Email..." : "Send Reset Email"}
+                {isResettingPassword ? "Sending..." : "Send password reset email"}
               </Button>
               
               <Button 
@@ -321,7 +321,7 @@ const Auth = () => {
                 className="w-full"
                 onClick={() => setShowForgotPassword(false)}
               >
-                Back to Sign In
+                Back to sign in
               </Button>
             </CardFooter>
           </form>
@@ -339,7 +339,7 @@ const Auth = () => {
               <UserRound size={32} className="text-medical-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">MediAssist</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">SwitchHealthCare</CardTitle>
           <CardDescription className="text-center">
             Your personal healthcare assistant
           </CardDescription>
