@@ -30,6 +30,7 @@ const Auth = () => {
     if (rememberedEmail) {
       setEmail(rememberedEmail);
       setRememberMe(true);
+      console.log('Loaded remembered email:', rememberedEmail);
     }
 
     // Handle email verification from URL parameters
@@ -62,12 +63,16 @@ const Auth = () => {
 
     const checkSession = async () => {
       console.log('Checking existing session...');
-      const { data, error } = await supabase.auth.getSession();
-      console.log('Session check result:', { data, error });
-      
-      if (data.session) {
-        console.log('User already authenticated, redirecting to home');
-        navigate('/');
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        console.log('Session check result:', { data, error });
+        
+        if (data.session) {
+          console.log('User already authenticated, redirecting to home');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
       }
     };
 
@@ -90,7 +95,7 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Attempting sign in with:', { email, rememberMe });
+    console.log('Attempting sign in with:', { email: email.trim(), rememberMe });
     setIsLoading(true);
 
     if (!email || !password) {
@@ -101,39 +106,49 @@ const Auth = () => {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password
+        email: email.trim().toLowerCase(),
+        password: password
       });
 
       console.log('Sign in response:', { data, error });
 
       if (error) {
         console.error('Sign in error:', error);
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error("Invalid email or password. Please check your credentials and try again.");
-        } else if (error.message.includes('Email not confirmed')) {
-          toast.error("Please check your email and click the confirmation link before signing in.");
-        } else if (error.message.includes('Too many requests')) {
-          toast.error("Too many login attempts. Please wait a moment and try again.");
-        } else {
-          toast.error(`Login failed: ${error.message}`);
+        let errorMessage = "Login failed. Please try again.";
+        
+        switch (error.message) {
+          case 'Invalid login credentials':
+            errorMessage = "Invalid email or password. Please check your credentials and try again.";
+            break;
+          case 'Email not confirmed':
+            errorMessage = "Please check your email and click the confirmation link before signing in.";
+            break;
+          case 'Too many requests':
+            errorMessage = "Too many login attempts. Please wait a moment and try again.";
+            break;
+          default:
+            errorMessage = `Login failed: ${error.message}`;
         }
+        
+        toast.error(errorMessage);
         setIsLoading(false);
         return;
       }
 
-      // Handle remember me option
-      if (rememberMe) {
-        localStorage.setItem('rememberedEmail', email);
-        console.log('Email saved to localStorage for remember me');
-      } else {
-        localStorage.removeItem('rememberedEmail');
-        console.log('Email removed from localStorage');
-      }
+      if (data.user) {
+        // Handle remember me option
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email.trim().toLowerCase());
+          console.log('Email saved to localStorage for remember me');
+        } else {
+          localStorage.removeItem('rememberedEmail');
+          console.log('Email removed from localStorage');
+        }
 
-      console.log('Sign in successful!');
-      toast.success("Welcome back! Signed in successfully.");
-      // Navigation will be handled by the auth state change listener
+        console.log('Sign in successful!');
+        toast.success("Welcome back! Signed in successfully.");
+        // Navigation will be handled by the auth state change listener
+      }
     } catch (error: any) {
       console.error('Sign in failed:', error);
       toast.error("An unexpected error occurred. Please try again.");
@@ -143,7 +158,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Attempting sign up with:', { email, firstName, lastName });
+    console.log('Attempting sign up with:', { email: email.trim(), firstName, lastName });
     setIsLoading(true);
 
     if (!firstName || !lastName) {
@@ -166,13 +181,13 @@ const Auth = () => {
 
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
         options: {
           data: {
-            first_name: firstName,
-            last_name: lastName,
-            phone: phone,
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            phone: phone.trim(),
             date_of_birth: dateOfBirth,
             gender: gender
           }
@@ -183,13 +198,20 @@ const Auth = () => {
 
       if (error) {
         console.error('Sign up error:', error);
-        if (error.message.includes('User already registered')) {
-          toast.error("An account with this email already exists. Please sign in instead.");
-        } else if (error.message.includes('Password should be at least 6 characters')) {
-          toast.error("Password must be at least 6 characters long.");
-        } else {
-          toast.error(`Sign up failed: ${error.message}`);
+        let errorMessage = "Sign up failed. Please try again.";
+        
+        switch (error.message) {
+          case 'User already registered':
+            errorMessage = "An account with this email already exists. Please sign in instead.";
+            break;
+          case 'Password should be at least 6 characters':
+            errorMessage = "Password must be at least 6 characters long.";
+            break;
+          default:
+            errorMessage = `Sign up failed: ${error.message}`;
         }
+        
+        toast.error(errorMessage);
         setIsLoading(false);
         return;
       }
