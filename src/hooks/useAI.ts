@@ -21,31 +21,31 @@ export const useAI = (): UseAIReturn => {
     const lowerPrompt = prompt.toLowerCase();
     
     if (lowerPrompt.includes('fever') || lowerPrompt.includes('temperature')) {
-      return `**Professional Assessment: Fever Management**
+      return `PROFESSIONAL ASSESSMENT: Fever Management
 
 Thank you for consulting about fever symptoms. Here's a comprehensive analysis:
 
-**Clinical Overview:**
+CLINICAL OVERVIEW:
 Fever is typically defined as a body temperature above 100.4°F (38°C) and represents your body's natural immune response.
 
-**Possible Underlying Conditions:**
+POSSIBLE UNDERLYING CONDITIONS:
 • Viral infections (influenza, common cold, COVID-19)
 • Bacterial infections (strep throat, urinary tract infection)
 • Inflammatory conditions
 • Heat-related illness
 
-**Evidence-Based Treatment Plan:**
-1. **Immediate Care:**
+EVIDENCE-BASED TREATMENT PLAN:
+1. IMMEDIATE CARE:
    - Acetaminophen: 650-1000mg every 6 hours (max 3000mg/day)
    - Ibuprofen: 400-600mg every 6-8 hours (with food)
    - Increase fluid intake: 8-10 glasses of water daily
 
-2. **Supportive Measures:**
+2. SUPPORTIVE MEASURES:
    - Rest in cool, comfortable environment
    - Light, breathable clothing
    - Cool compresses to forehead and wrists
 
-**Red Flags - Seek Immediate Medical Care:**
+RED FLAGS - SEEK IMMEDIATE MEDICAL CARE:
 - Temperature ≥103°F (39.4°C)
 - Persistent fever >72 hours
 - Difficulty breathing or chest pain
@@ -53,36 +53,36 @@ Fever is typically defined as a body temperature above 100.4°F (38°C) and repr
 - Signs of dehydration`;
     }
 
-    return `**Professional Medical Consultation**
+    return `PROFESSIONAL MEDICAL CONSULTATION
 
 Thank you for your health inquiry regarding: "${prompt}"
 
-**Initial Assessment Approach:**
+INITIAL ASSESSMENT APPROACH:
 Based on your symptoms, I recommend a systematic evaluation including:
 
-**Diagnostic Considerations:**
+DIAGNOSTIC CONSIDERATIONS:
 • Symptom onset, duration, and progression
 • Associated symptoms and triggers
 • Recent activities or exposures
 • Current medications and medical history
 
-**Initial Management Strategy:**
-1. **Symptomatic Relief:**
+INITIAL MANAGEMENT STRATEGY:
+1. SYMPTOMATIC RELIEF:
    - Rest and adequate hydration
    - Over-the-counter medications as appropriate
    - Environmental modifications
 
-2. **Monitoring Parameters:**
+2. MONITORING PARAMETERS:
    - Symptom severity and changes
    - Response to initial treatments
    - Development of new symptoms
 
-**Medication Guidelines:**
+MEDICATION GUIDELINES:
 • Pain/Fever: Acetaminophen 500-1000mg every 6-8 hours
 • Inflammation: Ibuprofen 200-400mg every 6-8 hours (with food)
 • Always follow package directions and check for allergies
 
-**Professional Consultation Recommended:**
+PROFESSIONAL CONSULTATION RECOMMENDED:
 This assessment provides general guidance only. Schedule an appointment with your healthcare provider for proper diagnosis and personalized treatment plan.`;
   };
 
@@ -119,7 +119,7 @@ This assessment provides general guidance only. Schedule an appointment with you
 
     // Professional fallback response system
     const professionalResponse = generateProfessionalResponse(prompt);
-    const disclaimer = "\n\n**⚠️ Medical Disclaimer:** This information is for educational purposes only. Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment. For medical emergencies, contact emergency services immediately.";
+    const disclaimer = "\n\n⚠️ Medical Disclaimer: This information is for educational purposes only. Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment. For medical emergencies, contact emergency services immediately.";
 
     setError(null);
     
@@ -143,22 +143,22 @@ This assessment provides general guidance only. Schedule an appointment with you
       setError(errorMessage);
       
       return {
-        text: `**Medical Consultation System**
+        text: `MEDICAL CONSULTATION SYSTEM
 
 I understand you need healthcare assistance regarding "${prompt}". While experiencing technical difficulties, here's essential guidance:
 
-**Immediate Actions:**
+IMMEDIATE ACTIONS:
 • For urgent concerns: Contact your healthcare provider
 • For emergencies: Call emergency services (911)
 • For routine questions: Schedule appointment with your doctor
 
-**General Health Reminders:**
+GENERAL HEALTH REMINDERS:
 • Monitor symptoms and their progression
 • Stay hydrated and get adequate rest
 • Follow any existing treatment plans
 • Don't hesitate to seek professional help
 
-**⚠️ Important:** This is general information only. Always seek professional medical advice for health concerns.`,
+⚠️ Important: This is general information only. Always seek professional medical advice for health concerns.`,
         confidence: 0.7,
         suggestions: [
           'Contact healthcare provider',
