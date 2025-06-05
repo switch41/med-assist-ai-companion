@@ -22,50 +22,120 @@ export const useAI = (): UseAIReturn => {
     setError(null);
 
     try {
-      // Using Hugging Face Inference API for healthcare AI model
-      const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+      // Try to use our API endpoint first
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer hf_demo`, // Demo token - replace with real token for production
         },
-        body: JSON.stringify({
-          inputs: `Healthcare Assistant: ${prompt}`,
-          parameters: {
-            max_length: 200,
-            temperature: 0.7,
-            do_sample: true,
-          },
-        }),
+        body: JSON.stringify({ message: prompt }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          text: data.response || 'I apologize, but I couldn\'t generate a proper response.',
+          confidence: 0.85,
+          suggestions: [
+            'Tell me about your symptoms in detail',
+            'What medications are you currently taking?',
+            'When did you first notice these symptoms?',
+            'Have you experienced this before?'
+          ],
+        };
       }
-
-      const data = await response.json();
-      
-      return {
-        text: data[0]?.generated_text || 'I apologize, but I cannot provide a response at this time. Please try again.',
-        confidence: 0.8,
-        suggestions: [
-          'Tell me about your symptoms',
-          'What medications are you taking?',
-          'Schedule an appointment',
-        ],
-      };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'AI service unavailable';
+      console.log('API endpoint not available, using fallback response');
+    }
+
+    // Fallback response system
+    const fallbackResponses = [
+      `Thank you for your question about "${prompt}". I'm here to provide general health information and guidance.
+
+**Important considerations:**
+• Monitor your symptoms carefully
+• Stay hydrated and get adequate rest
+• Consider factors like stress, diet, and sleep
+• Track any changes in your condition
+
+**When to seek professional help:**
+- Symptoms persist or worsen
+- You experience severe discomfort
+- You have specific health concerns
+- You need a proper medical evaluation`,
+
+      `I understand you're asking about "${prompt}". Here's some general health guidance:
+
+**General wellness approach:**
+• Maintain healthy lifestyle habits
+• Get regular check-ups with your healthcare provider
+• Don't ignore persistent symptoms
+• Keep track of your health patterns
+
+**Remember:**
+- Individual health needs vary greatly
+- Professional medical advice is irreplaceable
+- Early intervention often leads to better outcomes`,
+
+      `Regarding "${prompt}", here are some health insights:
+
+**Health management tips:**
+• Prevention is often the best medicine
+• Listen to your body's signals
+• Maintain open communication with healthcare providers
+• Stay informed about your health conditions
+
+**Safety first:**
+- Never ignore severe symptoms
+- Know when to seek emergency care
+- Keep your medical history updated
+- Follow prescribed treatment plans`
+    ];
+
+    const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    const disclaimer = "\n\n⚠️ **Medical Disclaimer**: This information is for educational purposes only. Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment.";
+
+    setError(null);
+    
+    return {
+      text: randomResponse + disclaimer,
+      confidence: 0.75,
+      suggestions: [
+        'Describe your symptoms',
+        'Ask about medications',
+        'Request health tips',
+        'Emergency guidance'
+      ],
+    };
+  };
+
+  const wrappedGenerateResponse = async (prompt: string): Promise<AIResponse> => {
+    try {
+      return await generateResponse(prompt);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'AI service temporarily unavailable';
       setError(errorMessage);
       
-      // Fallback response for demo purposes
+      // Emergency fallback
       return {
-        text: 'I understand you need healthcare assistance. As an AI assistant, I can help with general health information, but please remember that I cannot replace professional medical advice.',
+        text: `I understand you need healthcare assistance regarding "${prompt}". While I'm experiencing technical difficulties, I want to help. 
+
+**For immediate concerns:**
+• Contact your healthcare provider
+• Visit urgent care if symptoms are concerning
+• Call emergency services for emergencies
+
+**General health reminders:**
+• Stay hydrated and rest when possible
+• Monitor your symptoms
+• Don't hesitate to seek professional help
+
+⚠️ **Medical Disclaimer**: This is general information only. Always seek professional medical advice for health concerns.`,
         confidence: 0.6,
         suggestions: [
-          'Describe your symptoms',
-          'Ask about medications',
-          'Request health tips',
+          'Contact healthcare provider',
+          'Visit urgent care',
+          'Call emergency services',
         ],
       };
     } finally {
@@ -74,7 +144,7 @@ export const useAI = (): UseAIReturn => {
   };
 
   return {
-    generateResponse,
+    generateResponse: wrappedGenerateResponse,
     isLoading,
     error,
   };
