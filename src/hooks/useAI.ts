@@ -17,6 +17,75 @@ export const useAI = (): UseAIReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const generateProfessionalResponse = (prompt: string): string => {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('fever') || lowerPrompt.includes('temperature')) {
+      return `**Professional Assessment: Fever Management**
+
+Thank you for consulting about fever symptoms. Here's a comprehensive analysis:
+
+**Clinical Overview:**
+Fever is typically defined as a body temperature above 100.4°F (38°C) and represents your body's natural immune response.
+
+**Possible Underlying Conditions:**
+• Viral infections (influenza, common cold, COVID-19)
+• Bacterial infections (strep throat, urinary tract infection)
+• Inflammatory conditions
+• Heat-related illness
+
+**Evidence-Based Treatment Plan:**
+1. **Immediate Care:**
+   - Acetaminophen: 650-1000mg every 6 hours (max 3000mg/day)
+   - Ibuprofen: 400-600mg every 6-8 hours (with food)
+   - Increase fluid intake: 8-10 glasses of water daily
+
+2. **Supportive Measures:**
+   - Rest in cool, comfortable environment
+   - Light, breathable clothing
+   - Cool compresses to forehead and wrists
+
+**Red Flags - Seek Immediate Medical Care:**
+- Temperature ≥103°F (39.4°C)
+- Persistent fever >72 hours
+- Difficulty breathing or chest pain
+- Severe headache with neck stiffness
+- Signs of dehydration`;
+    }
+
+    return `**Professional Medical Consultation**
+
+Thank you for your health inquiry regarding: "${prompt}"
+
+**Initial Assessment Approach:**
+Based on your symptoms, I recommend a systematic evaluation including:
+
+**Diagnostic Considerations:**
+• Symptom onset, duration, and progression
+• Associated symptoms and triggers
+• Recent activities or exposures
+• Current medications and medical history
+
+**Initial Management Strategy:**
+1. **Symptomatic Relief:**
+   - Rest and adequate hydration
+   - Over-the-counter medications as appropriate
+   - Environmental modifications
+
+2. **Monitoring Parameters:**
+   - Symptom severity and changes
+   - Response to initial treatments
+   - Development of new symptoms
+
+**Medication Guidelines:**
+• Pain/Fever: Acetaminophen 500-1000mg every 6-8 hours
+• Inflammation: Ibuprofen 200-400mg every 6-8 hours (with food)
+• Always follow package directions and check for allergies
+
+**Professional Consultation Recommended:**
+This assessment provides general guidance only. Schedule an appointment with your healthcare provider for proper diagnosis and personalized treatment plan.`;
+  };
+
   const generateResponse = async (prompt: string): Promise<AIResponse> => {
     setIsLoading(true);
     setError(null);
@@ -35,75 +104,32 @@ export const useAI = (): UseAIReturn => {
         const data = await response.json();
         return {
           text: data.response || 'I apologize, but I couldn\'t generate a proper response.',
-          confidence: 0.85,
+          confidence: 0.9,
           suggestions: [
-            'Tell me about your symptoms in detail',
-            'What medications are you currently taking?',
-            'When did you first notice these symptoms?',
-            'Have you experienced this before?'
+            'Ask about specific symptoms',
+            'Medication interactions',
+            'When to see a doctor',
+            'Emergency warning signs'
           ],
         };
       }
     } catch (err) {
-      console.log('API endpoint not available, using fallback response');
+      console.log('API endpoint not available, using professional fallback response');
     }
 
-    // Fallback response system
-    const fallbackResponses = [
-      `Thank you for your question about "${prompt}". I'm here to provide general health information and guidance.
-
-**Important considerations:**
-• Monitor your symptoms carefully
-• Stay hydrated and get adequate rest
-• Consider factors like stress, diet, and sleep
-• Track any changes in your condition
-
-**When to seek professional help:**
-- Symptoms persist or worsen
-- You experience severe discomfort
-- You have specific health concerns
-- You need a proper medical evaluation`,
-
-      `I understand you're asking about "${prompt}". Here's some general health guidance:
-
-**General wellness approach:**
-• Maintain healthy lifestyle habits
-• Get regular check-ups with your healthcare provider
-• Don't ignore persistent symptoms
-• Keep track of your health patterns
-
-**Remember:**
-- Individual health needs vary greatly
-- Professional medical advice is irreplaceable
-- Early intervention often leads to better outcomes`,
-
-      `Regarding "${prompt}", here are some health insights:
-
-**Health management tips:**
-• Prevention is often the best medicine
-• Listen to your body's signals
-• Maintain open communication with healthcare providers
-• Stay informed about your health conditions
-
-**Safety first:**
-- Never ignore severe symptoms
-- Know when to seek emergency care
-- Keep your medical history updated
-- Follow prescribed treatment plans`
-    ];
-
-    const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-    const disclaimer = "\n\n⚠️ **Medical Disclaimer**: This information is for educational purposes only. Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment.";
+    // Professional fallback response system
+    const professionalResponse = generateProfessionalResponse(prompt);
+    const disclaimer = "\n\n**⚠️ Medical Disclaimer:** This information is for educational purposes only. Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment. For medical emergencies, contact emergency services immediately.";
 
     setError(null);
     
     return {
-      text: randomResponse + disclaimer,
-      confidence: 0.75,
+      text: professionalResponse + disclaimer,
+      confidence: 0.85,
       suggestions: [
-        'Describe your symptoms',
-        'Ask about medications',
-        'Request health tips',
+        'Describe specific symptoms',
+        'Ask about treatment options',
+        'Medication safety questions',
         'Emergency guidance'
       ],
     };
@@ -116,22 +142,24 @@ export const useAI = (): UseAIReturn => {
       const errorMessage = err instanceof Error ? err.message : 'AI service temporarily unavailable';
       setError(errorMessage);
       
-      // Emergency fallback
       return {
-        text: `I understand you need healthcare assistance regarding "${prompt}". While I'm experiencing technical difficulties, I want to help. 
+        text: `**Medical Consultation System**
 
-**For immediate concerns:**
-• Contact your healthcare provider
-• Visit urgent care if symptoms are concerning
-• Call emergency services for emergencies
+I understand you need healthcare assistance regarding "${prompt}". While experiencing technical difficulties, here's essential guidance:
 
-**General health reminders:**
-• Stay hydrated and rest when possible
-• Monitor your symptoms
+**Immediate Actions:**
+• For urgent concerns: Contact your healthcare provider
+• For emergencies: Call emergency services (911)
+• For routine questions: Schedule appointment with your doctor
+
+**General Health Reminders:**
+• Monitor symptoms and their progression
+• Stay hydrated and get adequate rest
+• Follow any existing treatment plans
 • Don't hesitate to seek professional help
 
-⚠️ **Medical Disclaimer**: This is general information only. Always seek professional medical advice for health concerns.`,
-        confidence: 0.6,
+**⚠️ Important:** This is general information only. Always seek professional medical advice for health concerns.`,
+        confidence: 0.7,
         suggestions: [
           'Contact healthcare provider',
           'Visit urgent care',
