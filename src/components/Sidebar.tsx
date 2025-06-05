@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <Activity className="h-6 w-6 text-medical-primary" />
-            <h1 className="font-bold text-xl text-medical-primary">MediAssist</h1>
+            <h1 className="font-bold text-xl text-medical-primary">SwitchHealthCare</h1>
           </div>
           <Button 
             variant="ghost" 
