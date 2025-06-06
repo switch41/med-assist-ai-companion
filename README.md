@@ -290,7 +290,7 @@ POST /api/chat/sessions/:id/messages
 
 ## Contributing
 * Kushal Parihar ([@switch41](https://github.com/switch41))
-* Sara Vasavi ([@Ronith05](https://github.com/Ronith05))
+* Sara Vasavi ([@vasavisara]((https://github.com/vasavisara))
 * Nandikanti Sriya ([@nandikanti09](https://github.com/nandikanti09))
 
 ### Guidelines
