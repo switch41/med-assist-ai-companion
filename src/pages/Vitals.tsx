@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HeartPulse } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FileUpload from '@/components/FileUpload';
 import FileManager from '@/components/FileManager';
 import AddVitalsDialog from '@/components/AddVitalsDialog';
+import WearableIntegration from '@/components/WearableIntegration';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -112,8 +112,9 @@ const Vitals = () => {
         </div>
 
         <Tabs defaultValue="charts">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="charts">Charts</TabsTrigger>
+            <TabsTrigger value="wearables">Wearable Devices</TabsTrigger>
             <TabsTrigger value="files">Data Files</TabsTrigger>
           </TabsList>
 
@@ -201,6 +202,10 @@ const Vitals = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="wearables" className="mt-4">
+            <WearableIntegration />
           </TabsContent>
 
           <TabsContent value="files" className="mt-4">
