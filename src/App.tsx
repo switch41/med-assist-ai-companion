@@ -8,7 +8,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import SymptomChecker from "./pages/SymptomChecker";
 import Medications from "./pages/Medications";
 import Appointments from "./pages/Appointments";
 import HealthRecords from "./pages/HealthRecords";
@@ -35,7 +34,6 @@ const App: React.FC = () => (
           {/* Main layout with sidebar */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
-            <Route path="/symptom-checker" element={<SymptomChecker />} />
             <Route path="/medications" element={<Medications />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/health-records" element={<HealthRecords />} />

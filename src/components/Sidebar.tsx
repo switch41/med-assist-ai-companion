@@ -24,7 +24,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   
   const menuItems = [
     { icon: <MessageSquare className="h-5 w-5" />, label: 'Chat', path: '/' },
-    { icon: <Activity className="h-5 w-5" />, label: 'Symptom Checker', path: '/symptom-checker' },
     { icon: <Pill className="h-5 w-5" />, label: 'Medications', path: '/medications' },
     { icon: <Calendar className="h-5 w-5" />, label: 'Appointments', path: '/appointments' },
     { icon: <FileText className="h-5 w-5" />, label: 'Health Records', path: '/health-records' },
