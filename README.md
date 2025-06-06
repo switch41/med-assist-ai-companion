@@ -289,9 +289,9 @@ POST /api/chat/sessions/:id/messages
 ---
 
 ## Contributing
-Kushal
-Vasavi
-Sriya
+* Kushal Parihar ([@switch41](https://github.com/switch41))
+* Sara Vasavi ([@Ronith05](https://github.com/Ronith05))
+* Nandikanti Sriya ([@nandikanti09](https://github.com/nandikanti09))
 
 ### Guidelines
 - Follow ESLint and Prettier configs
