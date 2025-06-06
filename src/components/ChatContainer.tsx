@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessage, { Message } from './ChatMessage';
@@ -54,13 +53,13 @@ const symptomResponses: Record<string, string[]> = {
 const welcomeMessages: Message[] = [
   {
     id: '1',
-    content: "Hello! I'm MediAssist, your healthcare assistant. How can I help you today?",
+    content: "Hello! I'm Switch Health Care AI, your advanced healthcare assistant powered by Microsoft BioGPT. How can I help you today?",
     sender: 'bot',
     timestamp: new Date()
   },
   {
     id: '2',
-    content: "I can help with symptom assessment, medication reminders, or general health questions. Please note that I'm not a replacement for professional medical care.",
+    content: "I can provide professional medical analysis, symptom assessment, medication guidance, and health recommendations. Please note that I complement but don't replace professional medical care.",
     sender: 'bot',
     timestamp: new Date()
   }
@@ -267,7 +266,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ onMenuToggle }) => {
         <div className="max-w-3xl mx-auto">
           <ChatInput onSendMessage={handleSendMessage} isProcessing={isTyping} />
           <div className="text-xs text-center text-gray-500 mt-2">
-            MediAssist is for informational purposes only. Always consult a healthcare professional for medical advice.
+            Switch Health Care AI is for informational purposes only. Always consult a healthcare professional for medical advice.
           </div>
         </div>
       </div>

@@ -21,167 +21,215 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // Enhanced medical response system
     const generateMedicalResponse = (query: string) => {
       const lowerQuery = query.toLowerCase();
       
-      // Symptom-based responses
       if (lowerQuery.includes('fever') || lowerQuery.includes('temperature')) {
-        return `SYMPTOM ANALYSIS: Fever
+        return `SWITCH HEALTH CARE - SYMPTOM ANALYSIS: Fever
 
 POSSIBLE CONDITIONS:
-• Viral infections (common cold, flu)
-• Bacterial infections (strep throat, UTI)
-• COVID-19 or other respiratory illnesses
-• Inflammatory conditions
+• Viral infections (influenza, common cold, COVID-19)
+• Bacterial infections (strep throat, urinary tract infection)
+• Inflammatory conditions or autoimmune responses
+• Heat-related illness or dehydration
 
-LIKELY CAUSES:
-• Body's immune response to infection
-• Dehydration or heat exhaustion
-• Medication side effects
-• Autoimmune disorders
+LIKELY UNDERLYING CAUSES:
+• Body's natural immune response to infection
+• Inflammatory cascade activation
+• Bacterial or viral pathogen presence
+• Environmental heat exposure or dehydration
 
-BASIC CARE GUIDELINES:
-• Rest and adequate sleep (8+ hours)
-• Increase fluid intake (water, clear broths)
-• Use fever reducers: Acetaminophen (500-1000mg every 6-8 hours) or Ibuprofen (200-400mg every 6-8 hours)
-• Cool compresses on forehead
-• Light, breathable clothing
+EVIDENCE-BASED TREATMENT PLAN:
+1. IMMEDIATE CARE MEASURES:
+   - Acetaminophen: 650-1000mg every 6 hours (maximum 3000mg daily)
+   - Ibuprofen: 400-600mg every 6-8 hours (take with food)
+   - Increase fluid intake: 8-12 glasses of water throughout the day
+   - Rest in cool, well-ventilated environment
 
-SEEK MEDICAL ATTENTION IF:
-- Fever above 103°F (39.4°C)
-- Persistent fever for more than 3 days
+2. SUPPORTIVE INTERVENTIONS:
+   - Light, breathable clothing and bedding
+   - Cool compresses applied to forehead and pulse points
+   - Electrolyte replacement with clear fluids
+   - Monitor temperature every 4-6 hours
+
+3. MEDICATION GUIDELINES:
+   - Alternate acetaminophen and ibuprofen if needed
+   - Follow package directions strictly
+   - Check for drug allergies before use
+   - Avoid aspirin in children under 18
+
+URGENT MEDICAL ATTENTION REQUIRED IF:
+- Temperature exceeds 103°F (39.4°C)
+- Persistent fever lasting more than 72 hours
 - Difficulty breathing or chest pain
-- Severe headache or neck stiffness
-- Signs of dehydration`;
+- Severe headache with neck stiffness
+- Signs of dehydration (dizziness, dry mouth, decreased urination)
+- Altered mental status or confusion`;
       }
 
       if (lowerQuery.includes('cough')) {
-        return `SYMPTOM ANALYSIS: Cough
+        return `SWITCH HEALTH CARE - SYMPTOM ANALYSIS: Cough
 
 POSSIBLE CONDITIONS:
-• Upper respiratory tract infection
-• Bronchitis or pneumonia
-• Allergic reactions
-• Asthma exacerbation
-• GERD (acid reflux)
+• Upper respiratory tract infection (viral or bacterial)
+• Acute bronchitis or pneumonia
+• Allergic rhinitis or environmental irritants
+• Asthma exacerbation or COPD flare
+• Gastroesophageal reflux disease (GERD)
 
-LIKELY CAUSES:
-• Viral or bacterial infection
-• Environmental irritants (smoke, dust)
-• Postnasal drip
-• Chronic conditions (asthma, COPD)
+LIKELY UNDERLYING CAUSES:
+• Viral pathogens (rhinovirus, influenza, RSV)
+• Bacterial infections (Streptococcus, Haemophilus)
+• Airway inflammation and irritation
+• Postnasal drip from sinus congestion
+• Acid reflux causing throat irritation
 
-BASIC CARE GUIDELINES:
-• Stay hydrated (warm liquids preferred)
-• Honey (1-2 teaspoons) for throat soothing
-• Humidifier or steam inhalation
-• Throat lozenges or salt water gargle
-• Avoid smoking and irritants
-• Over-the-counter: Dextromethorphan (15mg every 4 hours) for dry cough
+EVIDENCE-BASED TREATMENT PLAN:
+1. IMMEDIATE CARE MEASURES:
+   - Increase fluid intake (warm liquids preferred)
+   - Honey 1-2 teaspoons for throat coating (not for children under 1 year)
+   - Humidifier use or steam inhalation therapy
+   - Throat lozenges or warm salt water gargling
 
-SEEK MEDICAL ATTENTION IF:
+2. MEDICATION OPTIONS:
+   - Dextromethorphan: 15mg every 4 hours for dry cough
+   - Guaifenesin: 200-400mg every 4 hours for productive cough
+   - Avoid cough suppressants if cough is productive
+
+3. ENVIRONMENTAL MODIFICATIONS:
+   - Eliminate smoking and secondhand smoke exposure
+   - Use air purifiers to reduce allergens
+   - Maintain adequate humidity levels (40-50%)
+   - Avoid known triggers and irritants
+
+URGENT MEDICAL ATTENTION REQUIRED IF:
 - Cough persists longer than 3 weeks
-- Blood in sputum
-- High fever with productive cough
-- Difficulty breathing or wheezing
-- Chest pain with coughing`;
+- Blood in sputum or hemoptysis
+- High fever with productive, colored sputum
+- Severe difficulty breathing or wheezing
+- Chest pain accompanying cough episodes`;
       }
 
       if (lowerQuery.includes('headache') || lowerQuery.includes('head pain')) {
-        return `SYMPTOM ANALYSIS: Headache
+        return `SWITCH HEALTH CARE - SYMPTOM ANALYSIS: Headache
 
 POSSIBLE CONDITIONS:
-• Tension headache (most common)
-• Migraine headache
-• Sinus infection
-• Dehydration headache
-• Stress-related headache
+• Tension-type headache (most common presentation)
+• Migraine with or without aura
+• Sinus headache from congestion or infection
+• Dehydration or caffeine withdrawal headache
+• Stress-induced or muscle tension headache
 
-LIKELY CAUSES:
-• Stress and muscle tension
-• Dehydration or lack of sleep
-• Eye strain from screens
-• Hormonal changes
-• Certain foods or caffeine withdrawal
+LIKELY UNDERLYING CAUSES:
+• Muscle tension in neck, shoulders, and scalp
+• Vascular changes and inflammation
+• Dehydration or electrolyte imbalance
+• Sleep deprivation or irregular sleep patterns
+• Hormonal fluctuations or stress responses
 
-BASIC CARE GUIDELINES:
-• Rest in a quiet, dark room
-• Apply cold or warm compress to head/neck
-• Stay hydrated (8-10 glasses of water daily)
-• Gentle neck and shoulder massage
-• Pain relievers: Acetaminophen (500-1000mg) or Ibuprofen (200-400mg)
-• Regular sleep schedule (7-9 hours)
+EVIDENCE-BASED TREATMENT PLAN:
+1. IMMEDIATE RELIEF MEASURES:
+   - Rest in quiet, darkened environment
+   - Apply cold compress to forehead or warm compress to neck
+   - Gentle scalp and neck massage techniques
+   - Adequate hydration (8-12 glasses water daily)
 
-SEEK MEDICAL ATTENTION IF:
-- Sudden, severe headache ("worst headache of life")
-- Headache with fever, stiff neck, or rash
-- Changes in vision or speech
-- Headache after head injury
-- Progressively worsening headaches`;
+2. MEDICATION PROTOCOLS:
+   - Acetaminophen: 500-1000mg every 6-8 hours
+   - Ibuprofen: 200-400mg every 6-8 hours (with food)
+   - Avoid medication overuse (limit to 2-3 days per week)
+
+3. LIFESTYLE INTERVENTIONS:
+   - Regular sleep schedule (7-9 hours nightly)
+   - Stress management and relaxation techniques
+   - Regular meals to maintain blood sugar levels
+   - Limit screen time and eye strain
+
+URGENT MEDICAL ATTENTION REQUIRED IF:
+- Sudden, severe headache ("thunderclap" presentation)
+- Headache with fever, stiff neck, or skin rash
+- Progressive worsening over days or weeks
+- Changes in vision, speech, or coordination
+- Headache following head trauma or injury`;
       }
 
       if (lowerQuery.includes('stomach') || lowerQuery.includes('nausea') || lowerQuery.includes('vomit')) {
-        return `SYMPTOM ANALYSIS: Stomach Issues/Nausea
+        return `SWITCH HEALTH CARE - SYMPTOM ANALYSIS: Gastrointestinal Symptoms
 
 POSSIBLE CONDITIONS:
-• Gastroenteritis (stomach flu)
-• Food poisoning
-• Acid reflux or GERD
-• Stress-related gastritis
-• Medication side effects
+• Viral gastroenteritis (stomach flu)
+• Food poisoning or foodborne illness
+• Gastroesophageal reflux disease (GERD)
+• Stress-induced gastritis or functional dyspepsia
+• Medication-induced gastrointestinal irritation
 
-LIKELY CAUSES:
-• Viral or bacterial infection
-• Contaminated food or water
-• Stress and anxiety
-• Certain medications
-• Overeating or spicy foods
+LIKELY UNDERLYING CAUSES:
+• Viral pathogens (norovirus, rotavirus)
+• Bacterial contamination (Salmonella, Campylobacter)
+• Toxin exposure from contaminated food sources
+• Stress hormones affecting gastric function
+• Medication side effects or interactions
 
-BASIC CARE GUIDELINES:
-• Clear liquids (water, clear broths, electrolyte solutions)
-• BRAT diet: Bananas, Rice, Applesauce, Toast
-• Small, frequent meals
-• Avoid dairy, caffeine, and fatty foods
-• Ginger tea or ginger supplements
-• Anti-nausea: Dramamine (25-50mg every 4-6 hours)
+EVIDENCE-BASED TREATMENT PLAN:
+1. IMMEDIATE CARE MEASURES:
+   - Clear liquid diet: water, clear broths, electrolyte solutions
+   - BRAT diet progression: Bananas, Rice, Applesauce, Toast
+   - Small, frequent meals rather than large portions
+   - Avoid dairy, caffeine, alcohol, and fatty foods
 
-SEEK MEDICAL ATTENTION IF:
-- Persistent vomiting for more than 24 hours
-- Signs of dehydration (dizziness, dry mouth)
-- Severe abdominal pain
+2. HYDRATION PROTOCOL:
+   - Oral rehydration solutions or electrolyte drinks
+   - Small sips every 15-20 minutes initially
+   - Progress to larger amounts as tolerance improves
+   - Monitor for signs of dehydration
+
+3. MEDICATION OPTIONS:
+   - Ondansetron (Zofran): 4-8mg every 8 hours for nausea
+   - Bismuth subsalicylate: 262mg every 30 minutes as needed
+   - Avoid anti-diarrheal medications if fever present
+
+URGENT MEDICAL ATTENTION REQUIRED IF:
+- Persistent vomiting preventing fluid retention
+- Signs of severe dehydration (dizziness, rapid pulse)
+- Severe abdominal pain or cramping
 - Blood in vomit or stool
-- High fever with stomach symptoms`;
+- High fever accompanying gastrointestinal symptoms`;
       }
 
-      // General health inquiry response
-      return `HEALTH ASSESSMENT: General Inquiry
+      return `SWITCH HEALTH CARE - GENERAL HEALTH ASSESSMENT
 
-Based on your question about "${query}":
+Based on your inquiry about "${query}":
 
-RECOMMENDED APPROACH:
-• Monitor symptoms carefully for 24-48 hours
-• Keep a symptom diary (timing, severity, triggers)
-• Maintain good hydration and rest
-• Consider lifestyle factors (stress, diet, sleep)
+SYSTEMATIC EVALUATION APPROACH:
+• Comprehensive symptom assessment with timeline documentation
+• Review of associated symptoms and potential triggers
+• Consideration of recent activities, exposures, and changes
+• Evaluation of current medications and medical history
 
-GENERAL WELLNESS GUIDELINES:
-• Adequate sleep (7-9 hours nightly)
-• Balanced nutrition with fruits and vegetables
-• Regular physical activity (30 minutes daily)
-• Stress management techniques
-• Avoid smoking and limit alcohol
+GENERAL WELLNESS PROTOCOL:
+1. MONITORING GUIDELINES:
+   - Document symptom onset, duration, and progression
+   - Rate severity on scale of 1-10 for tracking
+   - Note any factors that worsen or improve symptoms
+   - Track response to initial treatment measures
 
-BASIC MEDICATIONS (if appropriate):
-• Pain relief: Acetaminophen or Ibuprofen (follow package directions)
-• Hydration: Electrolyte solutions
-• Vitamins: Multivitamin if dietary intake is poor
+2. BASIC CARE RECOMMENDATIONS:
+   - Adequate rest and sleep (7-9 hours nightly)
+   - Proper hydration (8-12 glasses water daily)
+   - Balanced nutrition with regular meal timing
+   - Stress reduction and relaxation techniques
 
-WHEN TO SEEK PROFESSIONAL CARE:
-- Symptoms worsen or persist beyond normal timeframe
+3. MEDICATION SAFETY:
+   - Acetaminophen: 500-1000mg every 6-8 hours (max 3000mg daily)
+   - Ibuprofen: 200-400mg every 6-8 hours with food
+   - Always check for allergies and drug interactions
+   - Follow package directions and contraindications
+
+PROFESSIONAL CONSULTATION RECOMMENDED WHEN:
+- Symptoms persist or worsen despite initial treatment
 - New or concerning symptoms develop
-- You have underlying health conditions
-- Medication interactions are a concern`;
+- Underlying health conditions require consideration
+- Medication interactions or contraindications exist`;
     };
 
     const medicalResponse = generateMedicalResponse(message);
@@ -189,17 +237,17 @@ WHEN TO SEEK PROFESSIONAL CARE:
     const disclaimer = `
 
 ⚠️ IMPORTANT MEDICAL DISCLAIMER:
-This information is for educational purposes only and is NOT intended to replace professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider before starting any treatment or medication. If this is a medical emergency, contact emergency services (911) immediately.
+This information is provided by Switch Health Care for educational purposes only and is NOT intended to replace professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider before starting any treatment or medication. If this is a medical emergency, contact emergency services (911) immediately.
 
-MEDICATION GUIDELINES:
-- Follow all package directions and dosing instructions
-- Check for drug allergies and interactions
-- Consult pharmacist or doctor before combining medications
-- Stop use if adverse reactions occur`;
+MEDICATION SAFETY GUIDELINES:
+- Follow all package directions and dosing instructions carefully
+- Check for drug allergies and potential interactions
+- Consult pharmacist or healthcare provider before combining medications
+- Discontinue use if adverse reactions occur and seek medical attention`;
 
     return res.status(200).json({
       response: medicalResponse + disclaimer,
-      source: 'AI Medical Assistant'
+      source: 'Switch Health Care AI Assistant'
     });
 
   } catch (error) {

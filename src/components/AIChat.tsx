@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,15 +22,15 @@ const AIChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your AI healthcare assistant. I can provide general health information, help assess symptoms, and answer medical questions. How can I help you today?',
+      text: 'Hello! I\'m your Switch Health Care AI assistant powered by Microsoft BioGPT. I can provide professional medical analysis, symptom assessment, and healthcare guidance. How can I help you today?',
       sender: 'ai',
       timestamp: new Date(),
       confidence: 1.0,
       suggestions: [
-        'Tell me about your symptoms',
-        'Medication information',
-        'General health questions',
-        'Emergency guidance'
+        'Describe your symptoms in detail',
+        'Ask about medication interactions',
+        'General health and wellness questions',
+        'Emergency guidance and when to seek care'
       ],
     },
   ]);
@@ -79,7 +78,7 @@ const AIChat: React.FC = () => {
     } catch (err) {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 2).toString(),
-        text: `❌ I'm experiencing technical difficulties. Please try again or contact a healthcare professional if you have urgent medical concerns.\n\n⚠️ For medical emergencies, contact emergency services immediately.`,
+        text: `❌ Switch Health Care AI is experiencing technical difficulties. Please try again or contact a healthcare professional if you have urgent medical concerns.\n\n⚠️ For medical emergencies, contact emergency services immediately.`,
         sender: 'ai',
         timestamp: new Date(),
         isError: true,
@@ -107,12 +106,12 @@ const AIChat: React.FC = () => {
         <CardHeader className="bg-gradient-to-r from-medical-primary to-blue-600 text-white">
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5" />
-            MediAssist - AI Healthcare Assistant
+            Switch Health Care - AI Assistant (BioGPT)
             <Badge variant="secondary" className="ml-auto bg-white/20 text-white">
               Active
             </Badge>
           </CardTitle>
-          <p className="text-blue-100 text-sm">Get instant healthcare guidance and medical information</p>
+          <p className="text-blue-100 text-sm">Professional medical analysis powered by Microsoft BioGPT</p>
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col gap-4 p-4">
@@ -159,7 +158,7 @@ const AIChat: React.FC = () => {
                           variant={message.confidence > 0.8 ? "default" : "secondary"} 
                           className="text-xs"
                         >
-                          Confidence: {Math.round(message.confidence * 100)}%
+                          BioGPT Confidence: {Math.round(message.confidence * 100)}%
                         </Badge>
                       </div>
                     )}
@@ -203,7 +202,7 @@ const AIChat: React.FC = () => {
                   </div>
                   <div className="bg-gray-50 border rounded-lg p-3 flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-medical-primary" />
-                    <span className="text-sm">AI is analyzing your question...</span>
+                    <span className="text-sm">BioGPT is analyzing your symptoms...</span>
                   </div>
                 </div>
               )}
@@ -215,7 +214,7 @@ const AIChat: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about symptoms, medications, health concerns, or general medical questions..."
+              placeholder="Describe your symptoms, ask about medications, or request health guidance..."
               disabled={isLoading}
               className="flex-1"
             />
@@ -236,7 +235,7 @@ const AIChat: React.FC = () => {
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
               <div className="text-xs text-yellow-800">
-                <strong>Important:</strong> This AI assistant provides general information only and is not a substitute for professional medical advice, diagnosis, or treatment. For medical emergencies, contact emergency services immediately.
+                <strong>Important:</strong> This AI assistant provides medical analysis using Microsoft BioGPT but is not a substitute for professional medical care. For medical emergencies, contact emergency services immediately.
               </div>
             </div>
           </div>
