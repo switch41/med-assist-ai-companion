@@ -20,7 +20,7 @@
 - Emergency condition detection with instant alerts
 
 ### Medication Management
-- OCR-powered prescription scanning and smart tracking
+- OCR-powered prescription scanning and smart tracking using  Microsoft BioGPT 
 - Automated reminders with intelligent notification system
 - Real-time drug interaction analysis
 - Refill management and pharmacy communication
