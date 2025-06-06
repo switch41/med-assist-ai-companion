@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Video } from 'lucide-react';
 import AddAppointmentDialog from '@/components/AddAppointmentDialog';
+import RescheduleDialog from '@/components/RescheduleDialog';
 
 const Appointments = () => {
-  const appointments = [
+  const [appointments, setAppointments] = useState([
     { 
+      id: 1,
       doctor: "Dr. Sarah Johnson", 
       specialty: "Cardiology", 
       date: "May 25, 2025", 
@@ -15,17 +17,27 @@ const Appointments = () => {
       type: "Virtual"
     },
     { 
+      id: 2,
       doctor: "Dr. Michael Chen", 
       specialty: "Primary Care", 
       date: "June 3, 2025", 
       time: "2:30 PM",
       type: "In-person"
     }
-  ];
+  ]);
 
   const handleAppointmentAdded = () => {
-    // Refresh appointments list or handle the new appointment
     console.log('Appointment added successfully');
+  };
+
+  const handleReschedule = (appointmentId: number, newDate: string, newTime: string) => {
+    setAppointments(prev => 
+      prev.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, date: newDate, time: newTime }
+          : apt
+      )
+    );
   };
 
   return (
@@ -40,8 +52,8 @@ const Appointments = () => {
         </div>
 
         <div className="grid gap-4">
-          {appointments.map((appointment, index) => (
-            <Card key={index}>
+          {appointments.map((appointment) => (
+            <Card key={appointment.id}>
               <CardHeader>
                 <CardTitle className="flex justify-between items-start">
                   <span>{appointment.doctor}</span>
@@ -56,7 +68,10 @@ const Appointments = () => {
                 <p className="text-muted-foreground">{appointment.date} at {appointment.time}</p>
               </CardContent>
               <CardFooter className="flex gap-2">
-                <Button variant="outline" className="flex-1">Reschedule</Button>
+                <RescheduleDialog 
+                  appointment={appointment}
+                  onReschedule={handleReschedule}
+                />
                 {appointment.type === "Virtual" && (
                   <Button className="bg-medical-primary hover:bg-medical-primary/90 flex-1">
                     Join Call
