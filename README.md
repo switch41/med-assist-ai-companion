@@ -61,7 +61,7 @@
 - Helmet.js, CORS, Winston logging, Socket.io
 
 ### AI & ML
-- Custom medical NLP models
+- Custom medical NLP models (Microsoft BioGPT) 
 - OCR for prescription processing
 - Statistical pattern recognition
 - Emergency triage based on ESI
@@ -83,7 +83,6 @@
 ### Prerequisites
 - Node.js v18+
 - npm or yarn
-- MongoDB
 - Supabase account
 
 ### Quick Start
@@ -206,13 +205,6 @@ const connectSamsungHealth = async () => {
 
 ---
 
-## Deployment
-
-### Cloud Deployment Options
-- AWS: ECS + RDS + ElastiCache
-- Google Cloud: GKE + Cloud SQL + Memorystore
-- Azure: AKS + Azure Database + Redis
-- Vercel: Frontend deployment
 
 ---
 
@@ -290,7 +282,7 @@ POST /api/chat/sessions/:id/messages
 
 ## Contributing
 * Kushal Parihar ([@switch41](https://github.com/switch41))
-* Sara Vasavi ([@vasavisara]((https://github.com/vasavisara))
+* Sara Vasavi ([@vasavisara](https://github.com/vasavisara))
 * Nandikanti Sriya ([@nandikanti09](https://github.com/nandikanti09))
 
 ### Guidelines
